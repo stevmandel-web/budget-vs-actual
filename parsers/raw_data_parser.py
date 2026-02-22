@@ -191,6 +191,11 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
     states = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
     clinics_detail = defaultdict(lambda: defaultdict(lambda: defaultdict(float)))
 
+    # GL account-level accumulators: month → gl_account → total amount
+    gl_accounts = defaultdict(lambda: defaultdict(float))
+    # GL account to P&L item mapping (for labeling)
+    gl_to_pnl = {}
+
     unmapped = []
     stats = {"total": 0, "skipped": 0, "mapped": 0, "unmapped": 0, "non_pnl": 0}
 
@@ -272,6 +277,13 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
 
         states[month_abbr][state][pnl_item] += amount_f
 
+        # Track GL account-level detail
+        # Use leaf account name for cleaner display
+        gl_leaf = account.split(":")[-1].strip() if ":" in account else account
+        gl_accounts[month_abbr][gl_leaf] += amount_f
+        if gl_leaf not in gl_to_pnl:
+            gl_to_pnl[gl_leaf] = pnl_item
+
     wb.close()
 
     print(f"  Processed {stats['total']} rows: "
@@ -294,6 +306,21 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
         for cl in clinics_detail[m]:
             _compute_subtotals(clinics_detail[m][cl])
 
+    # Build GL account summaries per month: list of {account, pnl_item, amount}
+    # sorted by absolute amount descending
+    gl_summaries = {}
+    for m, accts in gl_accounts.items():
+        gl_list = []
+        for acct, total in accts.items():
+            gl_list.append({
+                "account": acct,
+                "pnl_item": gl_to_pnl.get(acct, "Unknown"),
+                "amount": round(total, 2),
+            })
+        # Sort by absolute amount descending, keep top 50
+        gl_list.sort(key=lambda x: abs(x["amount"]), reverse=True)
+        gl_summaries[m] = gl_list[:50]
+
     # ── All-months mode: return every month in one shot ──
     if target_month is None:
         all_months_result = {}
@@ -312,6 +339,7 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
                     for cl, items in clinics_detail.get(m, {}).items()
                     if items.get("Total Revenue", 0) != 0 or items.get("BT Revenue", 0) != 0
                 },
+                "gl_detail": gl_summaries.get(m, []),
             }
         return all_months_result, unmapped
 
@@ -331,6 +359,7 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
             for cl, items in clinics_detail.get(target_month, {}).items()
             if items.get("Total Revenue", 0) != 0 or items.get("BT Revenue", 0) != 0
         },
+        "gl_detail": gl_summaries.get(target_month, []),
         "historical": {
             m: dict(items) for m, items in wholeco.items()
         },

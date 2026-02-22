@@ -29,7 +29,15 @@ Key terminology:
 - EBITDA = Earnings Before Interest, Taxes, Depreciation & Amortization
 - Home segment = home-based therapy services
 - Clinic segment = clinic-based therapy services
-- States: AZ, NC, GA, UT, NM, Other, MGMT"""
+- States: AZ, NC, GA, UT, NM, Other, MGMT
+
+Data available to you:
+- WholeCo P&L with budget variances
+- Segment breakdown (Home vs Clinic)
+- State-level P&L for each state
+- Individual clinic P&L detail (e.g., NC-Charlotte, AZ-Phoenix, UT-Jordan)
+- GL Account-level transaction summaries (top accounts by dollar amount, mapped to P&L line items)
+- Historical trends across available months"""
 
 
 def get_api_key():
@@ -135,6 +143,36 @@ def build_context(month_abbr, analysis, month_data, budget, available_months, al
         lines.append("### Key Insights")
         for ins in insights[:8]:
             lines.append(f"- [{ins['severity'].upper()}] {ins['insight']}")
+
+    # Clinic-level detail
+    clinics = month_data.get("clinics_detail", {})
+    if clinics:
+        lines.append("")
+        lines.append("### Clinic-Level Detail")
+        for clinic_name in sorted(clinics.keys()):
+            cd = clinics[clinic_name]
+            rev = cd.get("Total Revenue", 0)
+            ebitda = cd.get("EBITDA", 0)
+            margin = ebitda / rev * 100 if rev else 0
+            cogs = cd.get("Total COGS", 0)
+            gm = cd.get("Gross Profit", 0)
+            gm_pct = gm / rev * 100 if rev else 0
+            lines.append(
+                f"- {clinic_name}: Revenue ${rev:,.0f}, COGS ${cogs:,.0f}, "
+                f"GM ${gm:,.0f} ({gm_pct:.1f}%), EBITDA ${ebitda:,.0f} ({margin:.1f}%)"
+            )
+
+    # GL Account-level detail (transaction summaries grouped by account)
+    gl_detail = month_data.get("gl_detail", [])
+    if gl_detail:
+        lines.append("")
+        lines.append("### GL Account Detail (Top accounts by dollar amount)")
+        lines.append("Account | P&L Line Item | Amount")
+        for entry in gl_detail[:30]:  # Top 30 accounts
+            acct = entry.get("account", "Unknown")
+            pnl = entry.get("pnl_item", "Unknown")
+            amt = entry.get("amount", 0)
+            lines.append(f"- {acct} | {pnl} | ${amt:,.0f}")
 
     # Historical trend (if available)
     if all_months_data and len(all_months_data) > 1:
