@@ -540,17 +540,8 @@ def _build_actuals_only_rows(actuals_data):
             })
             continue
         if row_type == "pct_row":
-            rev = computed.get("Total Revenue", 0)
-            if label == "Gross Margin, %":
-                act_pct = computed.get("Gross Profit", 0) / rev if rev else 0
-            elif label == "Billing Expense, %":
-                act_pct = computed.get("Billing Expense", 0) / rev if rev else 0
-            elif label == "Gross Margin Net Billing, %":
-                act_pct = computed.get("Gross Profit Net Billing", 0) / rev if rev else 0
-            elif label == "EBITDA, %":
-                act_pct = computed.get("EBITDA", 0) / rev if rev else 0
-            else:
-                act_pct = 0
+            from dashboard.charts import _pct_value
+            act_pct = _pct_value(label, computed)
             rows.append({
                 "label": label, "row_type": "pct_row",
                 "is_revenue_like": is_revenue_like,

@@ -193,6 +193,7 @@ GLOBAL_CSS = f"""
         background: {SLDS["bg_error"]};
     }}
     .slds-table td.indent {{ padding-left: 2rem; }}
+    .slds-table tr.pct-row td {{ font-style: italic; }}
 
     /* Insight notification */
     .slds-notify {{
@@ -293,6 +294,21 @@ def fmt_compact(val):
     return f"{sign}${abs_val:,.0f}"
 
 
+def _pct_value(label, data_dict):
+    """Compute a pct_row value from a flat {line_item: value} dict.
+
+    Returns numerator / Total Revenue for any pct_row label.
+    Handles special names (Gross Margin → Gross Profit) and the generic
+    pattern where 'X, %' → X / Total Revenue.
+    """
+    from engine.variance import _pct_numerator_label
+    rev = data_dict.get("Total Revenue", 0)
+    if not rev:
+        return 0
+    base_label = _pct_numerator_label(label)
+    return data_dict.get(base_label, 0) / rev
+
+
 # ═══════════════════════════════════════════════════════════════════════
 # HTML COMPONENT BUILDERS
 # ═══════════════════════════════════════════════════════════════════════
@@ -375,11 +391,14 @@ def html_variance_table(variance_rows, compact=False, show_budget=True):
             pct_str = f"{pct_var * 100:+.1f}%" if pct_var is not None else "\u2014"
 
         # Row class
-        row_cls = ""
+        row_cls_parts = []
         if rt == "total":
-            row_cls = "total"
+            row_cls_parts.append("total")
         elif rt == "subtotal":
-            row_cls = "subtotal"
+            row_cls_parts.append("subtotal")
+        if is_pct:
+            row_cls_parts.append("pct-row")
+        row_cls = " ".join(row_cls_parts)
 
         # Variance cell class
         var_cls = ""
@@ -524,17 +543,7 @@ def html_mom_table(all_months_data, budget_segment, months_chrono,
         for m in month_abbrs:
             md = all_months_data.get(m, {}).get(segment_key, {})
             if is_pct:
-                rev = computed_by_month[m].get("Total Revenue", 0)
-                if label == "Gross Margin, %":
-                    val = computed_by_month[m].get("Gross Profit", 0) / rev if rev else 0
-                elif label == "Billing Expense, %":
-                    val = computed_by_month[m].get("Billing Expense", 0) / rev if rev else 0
-                elif label == "Gross Margin Net Billing, %":
-                    val = computed_by_month[m].get("Gross Profit Net Billing", 0) / rev if rev else 0
-                elif label == "EBITDA, %":
-                    val = computed_by_month[m].get("EBITDA", 0) / rev if rev else 0
-                else:
-                    val = 0
+                val = _pct_value(label, computed_by_month[m])
             else:
                 val = md.get(label, 0)
                 computed_by_month[m][label] = val
@@ -555,17 +564,7 @@ def html_mom_table(all_months_data, budget_segment, months_chrono,
             bud_dollar = month_vals[-1] - bud_val if month_vals else None
             bud_pct = bud_dollar / abs(bud_val) if bud_val else 0
         elif has_bud and is_pct:
-            bud_rev = computed_budget.get("Total Revenue", 0)
-            if label == "Gross Margin, %":
-                bud_val = computed_budget.get("Gross Profit", 0) / bud_rev if bud_rev else 0
-            elif label == "Billing Expense, %":
-                bud_val = computed_budget.get("Billing Expense", 0) / bud_rev if bud_rev else 0
-            elif label == "Gross Margin Net Billing, %":
-                bud_val = computed_budget.get("Gross Profit Net Billing", 0) / bud_rev if bud_rev else 0
-            elif label == "EBITDA, %":
-                bud_val = computed_budget.get("EBITDA", 0) / bud_rev if bud_rev else 0
-            else:
-                bud_val = 0
+            bud_val = _pct_value(label, computed_budget)
             bud_dollar = month_vals[-1] - bud_val if month_vals else None
             bud_pct = None  # pct of pct not meaningful
         else:
@@ -574,9 +573,25 @@ def html_mom_table(all_months_data, budget_segment, months_chrono,
             bud_pct = None
 
         # Row class
-        row_cls = "total" if row_type == "total" else ("subtotal" if row_type == "subtotal" else "")
+        row_cls_parts = []
+        if row_type == "total":
+            row_cls_parts.append("total")
+        elif row_type == "subtotal":
+            row_cls_parts.append("subtotal")
+        if is_pct:
+            row_cls_parts.append("pct-row")
+        row_cls = " ".join(row_cls_parts)
         td_cls = ' class="indent"' if row_type == "item" else ""
         sticky = f'style="position:sticky;left:0;z-index:2;background:{SLDS["bg_card"]};"'
+
+        # Favorable/unfavorable helpers
+        def _var_cls(delta, is_rev_like):
+            if delta is None or delta == 0:
+                return ""
+            if is_rev_like:
+                return "favorable" if delta > 0 else "unfavorable"
+            else:
+                return "favorable" if delta < 0 else "unfavorable"
 
         # Build cells
         cells = f'<td{td_cls} {sticky}>{label}</td>'
@@ -585,27 +600,29 @@ def html_mom_table(all_months_data, budget_segment, months_chrono,
         for val in month_vals:
             cells += f'<td class="num">{fmt_pct(val) if is_pct else fmt_dollar(val)}</td>'
 
-        # MoM delta cells
+        # MoM delta cells (with highlighting)
         if mom_dollar is not None:
+            mcls = _var_cls(mom_dollar, is_revenue_like)
             if is_pct:
-                cells += f'<td class="num">{mom_dollar * 100:+.1f}pp</td>'
+                cells += f'<td class="num {mcls}">{mom_dollar * 100:+.1f}pp</td>'
                 cells += f'<td class="num">{DASH}</td>'
             else:
-                cells += f'<td class="num">{fmt_dollar(mom_dollar, show_sign=True)}</td>'
-                cells += f'<td class="num">{mom_pct * 100:+.1f}%</td>'
+                cells += f'<td class="num {mcls}">{fmt_dollar(mom_dollar, show_sign=True)}</td>'
+                cells += f'<td class="num {mcls}">{mom_pct * 100:+.1f}%</td>'
         else:
             cells += f'<td class="num">{DASH}</td><td class="num">{DASH}</td>'
 
-        # Budget cells
+        # Budget cells (with highlighting)
         if bud_val is not None:
+            bcls = _var_cls(bud_dollar, is_revenue_like) if bud_dollar else ""
             if is_pct:
                 cells += f'<td class="num">{fmt_pct(bud_val)}</td>'
-                cells += f'<td class="num">{bud_dollar * 100:+.1f}pp</td>' if bud_dollar is not None else f'<td class="num">{DASH}</td>'
+                cells += f'<td class="num {bcls}">{bud_dollar * 100:+.1f}pp</td>' if bud_dollar is not None else f'<td class="num">{DASH}</td>'
                 cells += f'<td class="num">{DASH}</td>'
             else:
                 cells += f'<td class="num">{fmt_dollar(bud_val)}</td>'
-                cells += f'<td class="num">{fmt_dollar(bud_dollar, show_sign=True)}</td>' if bud_dollar is not None else f'<td class="num">{DASH}</td>'
-                cells += f'<td class="num">{bud_pct * 100:+.1f}%</td>' if bud_pct else f'<td class="num">{DASH}</td>'
+                cells += f'<td class="num {bcls}">{fmt_dollar(bud_dollar, show_sign=True)}</td>' if bud_dollar is not None else f'<td class="num">{DASH}</td>'
+                cells += f'<td class="num {bcls}">{bud_pct * 100:+.1f}%</td>' if bud_pct else f'<td class="num">{DASH}</td>'
         else:
             cells += f'<td class="num">{DASH}</td>' * 3
 
@@ -666,17 +683,7 @@ def html_clinic_comparison_table(clinics_detail, clinic_names, budget_gm_pct=Non
         for c in clinic_names:
             cd = clinics_detail.get(c, {})
             if is_pct:
-                rev = computed[c].get("Total Revenue", 0)
-                if label == "Gross Margin, %":
-                    val = computed[c].get("Gross Profit", 0) / rev if rev else 0
-                elif label == "Billing Expense, %":
-                    val = computed[c].get("Billing Expense", 0) / rev if rev else 0
-                elif label == "Gross Margin Net Billing, %":
-                    val = computed[c].get("Gross Profit Net Billing", 0) / rev if rev else 0
-                elif label == "EBITDA, %":
-                    val = computed[c].get("EBITDA", 0) / rev if rev else 0
-                else:
-                    val = 0
+                val = _pct_value(label, computed[c])
             else:
                 val = cd.get(label, 0)
                 computed[c][label] = val
@@ -688,7 +695,14 @@ def html_clinic_comparison_table(clinics_detail, clinic_names, budget_gm_pct=Non
         if all_zero and row_type == "item":
             continue
 
-        row_cls = "total" if row_type == "total" else ("subtotal" if row_type == "subtotal" else "")
+        row_cls_parts = []
+        if row_type == "total":
+            row_cls_parts.append("total")
+        elif row_type == "subtotal":
+            row_cls_parts.append("subtotal")
+        if is_pct:
+            row_cls_parts.append("pct-row")
+        row_cls = " ".join(row_cls_parts)
         td_cls = ' class="indent"' if row_type == "item" else ""
         sticky = f'style="position:sticky;left:0;z-index:2;background:{SLDS["bg_card"]};"'
 
@@ -780,17 +794,7 @@ def html_state_comparison_table(states_data, state_names, budget_states=None, mo
         for s in state_names:
             sd = states_data.get(s, {})
             if is_pct:
-                rev = computed[s].get("Total Revenue", 0)
-                if label == "Gross Margin, %":
-                    val = computed[s].get("Gross Profit", 0) / rev if rev else 0
-                elif label == "Billing Expense, %":
-                    val = computed[s].get("Billing Expense", 0) / rev if rev else 0
-                elif label == "Gross Margin Net Billing, %":
-                    val = computed[s].get("Gross Profit Net Billing", 0) / rev if rev else 0
-                elif label == "EBITDA, %":
-                    val = computed[s].get("EBITDA", 0) / rev if rev else 0
-                else:
-                    val = 0
+                val = _pct_value(label, computed[s])
             else:
                 val = sd.get(label, 0)
                 computed[s][label] = val
@@ -801,7 +805,14 @@ def html_state_comparison_table(states_data, state_names, budget_states=None, mo
         if all_zero and row_type == "item":
             continue
 
-        row_cls = "total" if row_type == "total" else ("subtotal" if row_type == "subtotal" else "")
+        row_cls_parts = []
+        if row_type == "total":
+            row_cls_parts.append("total")
+        elif row_type == "subtotal":
+            row_cls_parts.append("subtotal")
+        if is_pct:
+            row_cls_parts.append("pct-row")
+        row_cls = " ".join(row_cls_parts)
         td_cls = ' class="indent"' if row_type == "item" else ""
         sticky = f'style="position:sticky;left:0;z-index:2;background:{SLDS["bg_card"]};"'
 
@@ -883,17 +894,7 @@ def html_entity_mom_table(current_data, prior_data, current_label, prior_label,
 
         # Current value
         if is_pct:
-            cur_rev = computed_cur.get("Total Revenue", 0)
-            if label == "Gross Margin, %":
-                cur_val = computed_cur.get("Gross Profit", 0) / cur_rev if cur_rev else 0
-            elif label == "Billing Expense, %":
-                cur_val = computed_cur.get("Billing Expense", 0) / cur_rev if cur_rev else 0
-            elif label == "Gross Margin Net Billing, %":
-                cur_val = computed_cur.get("Gross Profit Net Billing", 0) / cur_rev if cur_rev else 0
-            elif label == "EBITDA, %":
-                cur_val = computed_cur.get("EBITDA", 0) / cur_rev if cur_rev else 0
-            else:
-                cur_val = 0
+            cur_val = _pct_value(label, computed_cur)
         else:
             cur_val = current_data.get(label, 0)
             computed_cur[label] = cur_val
@@ -901,17 +902,7 @@ def html_entity_mom_table(current_data, prior_data, current_label, prior_label,
         # Prior value
         if has_prior:
             if is_pct:
-                pri_rev = computed_prior.get("Total Revenue", 0)
-                if label == "Gross Margin, %":
-                    pri_val = computed_prior.get("Gross Profit", 0) / pri_rev if pri_rev else 0
-                elif label == "Billing Expense, %":
-                    pri_val = computed_prior.get("Billing Expense", 0) / pri_rev if pri_rev else 0
-                elif label == "Gross Margin Net Billing, %":
-                    pri_val = computed_prior.get("Gross Profit Net Billing", 0) / pri_rev if pri_rev else 0
-                elif label == "EBITDA, %":
-                    pri_val = computed_prior.get("EBITDA", 0) / pri_rev if pri_rev else 0
-                else:
-                    pri_val = 0
+                pri_val = _pct_value(label, computed_prior)
             else:
                 pri_val = prior_data.get(label, 0)
                 computed_prior[label] = pri_val
@@ -921,17 +912,7 @@ def html_entity_mom_table(current_data, prior_data, current_label, prior_label,
         # Budget value
         if has_bud:
             if is_pct:
-                bud_rev = computed_bud.get("Total Revenue", 0)
-                if label == "Gross Margin, %":
-                    bud_val = computed_bud.get("Gross Profit", 0) / bud_rev if bud_rev else 0
-                elif label == "Billing Expense, %":
-                    bud_val = computed_bud.get("Billing Expense", 0) / bud_rev if bud_rev else 0
-                elif label == "Gross Margin Net Billing, %":
-                    bud_val = computed_bud.get("Gross Profit Net Billing", 0) / bud_rev if bud_rev else 0
-                elif label == "EBITDA, %":
-                    bud_val = computed_bud.get("EBITDA", 0) / bud_rev if bud_rev else 0
-                else:
-                    bud_val = 0
+                bud_val = _pct_value(label, computed_bud)
             else:
                 raw = budget_data.get(label, {})
                 bud_val = raw.get(month, 0) if isinstance(raw, dict) else raw
@@ -940,8 +921,22 @@ def html_entity_mom_table(current_data, prior_data, current_label, prior_label,
             bud_val = 0
 
         # Row styling
-        row_cls = "total" if row_type == "total" else ("subtotal" if row_type == "subtotal" else "")
+        row_cls_parts = []
+        if row_type == "total":
+            row_cls_parts.append("total")
+        elif row_type == "subtotal":
+            row_cls_parts.append("subtotal")
+        if is_pct:
+            row_cls_parts.append("pct-row")
+        row_cls = " ".join(row_cls_parts)
         td_cls = ' class="indent"' if row_type == "item" else ""
+
+        # Highlighting helper
+        def _var_cls(delta):
+            if delta is None or delta == 0 or is_revenue_like is None:
+                return ""
+            favorable = (delta > 0) == is_revenue_like
+            return "favorable" if favorable else "unfavorable"
 
         # Build cells
         cells = f'<td{td_cls}>{label}</td>'
@@ -953,33 +948,27 @@ def html_entity_mom_table(current_data, prior_data, current_label, prior_label,
         if has_prior:
             cells += f'<td class="num">{fmt_pct(pri_val) if is_pct else fmt_dollar(pri_val)}</td>'
             mom = cur_val - pri_val
+            mcls = _var_cls(mom)
             if is_pct:
-                cells += f'<td class="num">{mom * 100:+.1f}pp</td>'
+                cells += f'<td class="num {mcls}">{mom * 100:+.1f}pp</td>'
                 cells += f'<td class="num">{DASH}</td>'
             else:
                 mom_pct = mom / abs(pri_val) if pri_val else 0
-                var_cls = ""
-                if mom != 0 and is_revenue_like is not None:
-                    favorable = (mom > 0) == is_revenue_like
-                    var_cls = "favorable" if favorable else "unfavorable"
-                cells += f'<td class="num {var_cls}">{fmt_dollar(mom, show_sign=True)}</td>'
-                cells += f'<td class="num {var_cls}">{mom_pct * 100:+.1f}%</td>' if pri_val else f'<td class="num">{DASH}</td>'
+                cells += f'<td class="num {mcls}">{fmt_dollar(mom, show_sign=True)}</td>'
+                cells += f'<td class="num {mcls}">{mom_pct * 100:+.1f}%</td>' if pri_val else f'<td class="num">{DASH}</td>'
 
         # Budget + deltas
         if has_bud:
             cells += f'<td class="num">{fmt_pct(bud_val) if is_pct else fmt_dollar(bud_val)}</td>'
             bud_delta = cur_val - bud_val
+            bcls = _var_cls(bud_delta)
             if is_pct:
-                cells += f'<td class="num">{bud_delta * 100:+.1f}pp</td>'
+                cells += f'<td class="num {bcls}">{bud_delta * 100:+.1f}pp</td>'
                 cells += f'<td class="num">{DASH}</td>'
             else:
                 bud_pct = bud_delta / abs(bud_val) if bud_val else 0
-                var_cls = ""
-                if bud_delta != 0 and is_revenue_like is not None:
-                    favorable = (bud_delta > 0) == is_revenue_like
-                    var_cls = "favorable" if favorable else "unfavorable"
-                cells += f'<td class="num {var_cls}">{fmt_dollar(bud_delta, show_sign=True)}</td>'
-                cells += f'<td class="num {var_cls}">{bud_pct * 100:+.1f}%</td>' if bud_val else f'<td class="num">{DASH}</td>'
+                cells += f'<td class="num {bcls}">{fmt_dollar(bud_delta, show_sign=True)}</td>'
+                cells += f'<td class="num {bcls}">{bud_pct * 100:+.1f}%</td>' if bud_val else f'<td class="num">{DASH}</td>'
 
         rows.append(f'<tr class="{row_cls}">{cells}</tr>')
 

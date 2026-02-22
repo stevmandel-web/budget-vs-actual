@@ -13,6 +13,27 @@ def _safe_div(numerator, denominator):
     return numerator / denominator
 
 
+# Map pct_row labels to their numerator line item and special names
+_PCT_ROW_MAP = {
+    "Gross Margin, %": "Gross Profit",
+    "Gross Margin Net Billing, %": "Gross Profit Net Billing",
+}
+
+
+def _pct_numerator_label(label):
+    """Return the numerator line item for a pct_row label.
+
+    Handles special names (Gross Margin → Gross Profit) and the generic
+    pattern where 'X, %' → 'X'.
+    """
+    if label in _PCT_ROW_MAP:
+        return _PCT_ROW_MAP[label]
+    # Generic: strip ', %' suffix → base line item
+    if label.endswith(", %"):
+        return label[:-3]
+    return label
+
+
 def _compute_pct_row(label, computed_values):
     """
     Compute a percentage row value based on previously computed dollar values.
@@ -21,27 +42,10 @@ def _compute_pct_row(label, computed_values):
     rev_bud = computed_values.get("Total Revenue", {}).get("budget", 0)
     rev_act = computed_values.get("Total Revenue", {}).get("actual", 0)
 
-    if label == "Gross Margin, %":
-        gp_bud = computed_values.get("Gross Profit", {}).get("budget", 0)
-        gp_act = computed_values.get("Gross Profit", {}).get("actual", 0)
-        return _safe_div(gp_bud, rev_bud), _safe_div(gp_act, rev_act)
-
-    elif label == "Billing Expense, %":
-        bill_bud = computed_values.get("Billing Expense", {}).get("budget", 0)
-        bill_act = computed_values.get("Billing Expense", {}).get("actual", 0)
-        return _safe_div(bill_bud, rev_bud), _safe_div(bill_act, rev_act)
-
-    elif label == "Gross Margin Net Billing, %":
-        gpnb_bud = computed_values.get("Gross Profit Net Billing", {}).get("budget", 0)
-        gpnb_act = computed_values.get("Gross Profit Net Billing", {}).get("actual", 0)
-        return _safe_div(gpnb_bud, rev_bud), _safe_div(gpnb_act, rev_act)
-
-    elif label == "EBITDA, %":
-        ebitda_bud = computed_values.get("EBITDA", {}).get("budget", 0)
-        ebitda_act = computed_values.get("EBITDA", {}).get("actual", 0)
-        return _safe_div(ebitda_bud, rev_bud), _safe_div(ebitda_act, rev_act)
-
-    return 0, 0
+    base_label = _pct_numerator_label(label)
+    num_bud = computed_values.get(base_label, {}).get("budget", 0)
+    num_act = computed_values.get(base_label, {}).get("actual", 0)
+    return _safe_div(num_bud, rev_bud), _safe_div(num_act, rev_act)
 
 
 def compute_variance(budget_data, actuals_data, month):

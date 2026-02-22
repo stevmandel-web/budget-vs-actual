@@ -74,6 +74,7 @@ PNL_STRUCTURE = [
     ("BCBA Performance Bonus", "item", False),
     ("BCBA Sign-On Bonus", "item", False),
     ("Total COGS", "subtotal", False),
+    ("Total COGS, %", "pct_row", False),
     ("", "blank", None),
 
     # GROSS PROFIT
@@ -95,6 +96,7 @@ PNL_STRUCTURE = [
     ("Marketing Expense", "item", False),
     ("Referrals Expense", "item", False),
     ("Total Sales & Marketing", "subtotal", False),
+    ("Total Sales & Marketing, %", "pct_row", False),
     ("", "blank", None),
 
     # STATE OPS
@@ -105,6 +107,7 @@ PNL_STRUCTURE = [
     ("Ops Manager Wages", "item", False),
     ("StateOps Bonus", "item", False),
     ("Total StateOps Expense", "subtotal", False),
+    ("Total StateOps Expense, %", "pct_row", False),
     ("", "blank", None),
 
     # CLINIC G&A
@@ -113,6 +116,7 @@ PNL_STRUCTURE = [
     ("Clinic Utilities", "item", False),
     ("Other Clinic Expense", "item", False),
     ("Total Clinic G&A", "subtotal", False),
+    ("Total Clinic G&A, %", "pct_row", False),
     ("", "blank", None),
 
     # OTHER G&A
@@ -130,6 +134,7 @@ PNL_STRUCTURE = [
     ("Bad Debt Expense", "item", False),
     ("Other G&A", "item", False),
     ("Other Direct G&A Expense", "subtotal", False),
+    ("Other Direct G&A Expense, %", "pct_row", False),
     ("", "blank", None),
 
     # CORPORATE
@@ -139,10 +144,12 @@ PNL_STRUCTURE = [
     ("Corporate Rent", "item", False),
     ("Corporate Office Expense", "item", False),
     ("Total Corporate Expense", "subtotal", False),
+    ("Total Corporate Expense, %", "pct_row", False),
     ("", "blank", None),
 
     # TOTALS
     ("Total Expenses", "subtotal", False),
+    ("Total Expenses, %", "pct_row", False),
     ("", "blank", None),
     ("EBITDA", "total", True),
     ("EBITDA, %", "pct_row", True),
