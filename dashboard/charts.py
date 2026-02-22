@@ -294,6 +294,21 @@ def fmt_compact(val):
     return f"{sign}${abs_val:,.0f}"
 
 
+_PCT_LABEL_MAP = {
+    "Gross Margin, %": "Gross Profit",
+    "Gross Margin Net Billing, %": "Gross Profit Net Billing",
+}
+
+
+def _pct_numerator_label(label):
+    """Return the numerator line item for a pct_row label."""
+    if label in _PCT_LABEL_MAP:
+        return _PCT_LABEL_MAP[label]
+    if label.endswith(", %"):
+        return label[:-3]
+    return label
+
+
 def _pct_value(label, data_dict):
     """Compute a pct_row value from a flat {line_item: value} dict.
 
@@ -301,7 +316,6 @@ def _pct_value(label, data_dict):
     Handles special names (Gross Margin → Gross Profit) and the generic
     pattern where 'X, %' → X / Total Revenue.
     """
-    from engine.variance import _pct_numerator_label
     rev = data_dict.get("Total Revenue", 0)
     if not rev:
         return 0
