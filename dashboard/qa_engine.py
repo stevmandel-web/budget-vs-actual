@@ -151,7 +151,7 @@ def build_context(month_abbr, analysis, month_data, budget, available_months, al
     return "\n".join(lines)
 
 
-def ask(question, context, message_history=None, model="claude-haiku-4-20250414"):
+def ask(question, context, message_history=None, model="claude-haiku-4-5-20251001"):
     """
     Send a question to Claude with financial context.
 
@@ -195,7 +195,7 @@ def ask(question, context, message_history=None, model="claude-haiku-4-20250414"
         return f"**Error querying Claude:** {str(e)}"
 
 
-def generate_summary_for_gamma(month_abbr, context, model="claude-sonnet-4-20250514"):
+def generate_summary_for_gamma(month_abbr, context, model="claude-sonnet-4-5-20250929"):
     """
     Generate a structured 1-pager summary suitable for Gamma presentation.
 
