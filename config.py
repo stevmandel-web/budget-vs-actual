@@ -2,11 +2,24 @@
 Configuration for Budget vs Actual P&L tool.
 Maps line items, defines P&L structure, column positions, and thresholds.
 """
+import os
 
-# ── File paths (override via command line) ──────────────────────────────────
-DEFAULT_BUDGET_PATH = "/Users/stevenmandel/Downloads/MASTER 2026 Budget vBase_3.xlsx"
-DEFAULT_ACTUALS_PATH = "/Users/stevenmandel/Downloads/January Financials.xlsx"
-DEFAULT_OUTPUT_PATH = "/Users/stevenmandel/Downloads/Budget_vs_Actual_Output.xlsx"
+# ── Cloud deployment detection ──────────────────────────────────────────────
+IS_CLOUD = os.environ.get("STREAMLIT_CLOUD", "false").lower() == "true"
+
+# ── File paths (configurable via env vars for cloud deployment) ─────────────
+DEFAULT_BUDGET_PATH = os.environ.get(
+    "BUDGET_PATH",
+    "/Users/stevenmandel/Downloads/MASTER 2026 Budget vBase_3.xlsx"
+)
+DEFAULT_ACTUALS_PATH = os.environ.get(
+    "ACTUALS_PATH",
+    "/Users/stevenmandel/Downloads/January Financials.xlsx"
+)
+DEFAULT_OUTPUT_PATH = os.environ.get(
+    "OUTPUT_PATH",
+    "/Users/stevenmandel/Downloads/Budget_vs_Actual_Output.xlsx"
+)
 
 # ── Budget file is in $000s; multiply by this to get whole dollars ──────────
 BUDGET_MULTIPLIER = 1000
@@ -217,8 +230,14 @@ CLINIC_STATE_OVERRIDES = {
 }
 
 # ── Raw Data Tab configuration ───────────────────────────────────────────────
-DEFAULT_RAW_DATA_PATH = "/Users/stevenmandel/Downloads/Raw Data Tab .xlsx"
-DEFAULT_MAPPING_PATH = "/Users/stevenmandel/Downloads/Mapping tab.xlsx"
+DEFAULT_RAW_DATA_PATH = os.environ.get(
+    "RAW_DATA_PATH",
+    "/Users/stevenmandel/Downloads/Raw Data Tab .xlsx"
+)
+DEFAULT_MAPPING_PATH = os.environ.get(
+    "MAPPING_PATH",
+    "/Users/stevenmandel/Downloads/Mapping tab.xlsx"
+)
 
 # Raw Data Tab layout
 RAW_DATA_SHEET = "Raw Data Tab (2)"

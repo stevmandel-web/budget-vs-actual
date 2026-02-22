@@ -1641,7 +1641,7 @@ def build_output_workbook(
     months_loaded,
     month,
     states,
-    output_path,
+    output_path=None,
     prior_month_actuals=None,
     working_days=None,
     clinics_detail=None,
@@ -1695,5 +1695,13 @@ def build_output_workbook(
     if unmapped_transactions:
         write_unmapped_sheet(wb, unmapped_transactions)
 
-    wb.save(output_path)
-    return output_path
+    if output_path:
+        wb.save(output_path)
+        return output_path
+    else:
+        # Return workbook as bytes for st.download_button
+        from io import BytesIO
+        stream = BytesIO()
+        wb.save(stream)
+        stream.seek(0)
+        return stream

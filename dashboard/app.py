@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import streamlit as st
 
-from config import DEFAULT_BUDGET_PATH, DEFAULT_MAPPING_PATH, PNL_STRUCTURE
+from config import DEFAULT_BUDGET_PATH, DEFAULT_MAPPING_PATH, PNL_STRUCTURE, IS_CLOUD
 from dashboard.pipeline import (
     process_raw_data_upload, ensure_budget_loaded,
     compute_month_analysis, get_months_in_order,
@@ -20,6 +20,10 @@ from dashboard.pipeline import (
     aggregate_clinics, get_all_months_chronological,
 )
 from engine.margin_analysis import analyze_service_line_margins
+from dashboard.qa_engine import (
+    is_available as qa_available, build_context as qa_build_context,
+    ask as qa_ask, generate_summary_for_gamma,
+)
 from dashboard.charts import (
     SLDS, GLOBAL_CSS, CHART_COLORS,
     fmt_dollar, fmt_pct, fmt_compact,
@@ -57,6 +61,36 @@ def init_state():
 
 
 init_state()
+
+
+# ── Password gate (Streamlit Cloud) ──────────────────────────────────
+def check_password():
+    """Returns True if the user has entered the correct password."""
+    if not hasattr(st, "secrets") or "password" not in st.secrets:
+        return True  # No password configured (local dev)
+
+    if st.session_state.get("authenticated"):
+        return True
+
+    st.markdown(
+        '<div style="text-align:center; padding: 3rem 1rem;">'
+        '<div style="font-size:2rem; font-weight:700; color:#0070d2;">🌳 Treetop Therapy</div>'
+        '<div style="font-size:1rem; color:#706e6b; margin-top:0.5rem;">Budget vs Actual Dashboard</div>'
+        '</div>',
+        unsafe_allow_html=True,
+    )
+    pwd = st.text_input("Enter password to continue", type="password")
+    if pwd:
+        if pwd == st.secrets["password"]:
+            st.session_state.authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect password")
+    return False
+
+
+if not check_password():
+    st.stop()
 
 
 # ── Inject SLDS global stylesheet ───────────────────────────────────
@@ -175,6 +209,51 @@ SIDEBAR_CSS = f"""
 """
 
 
+def _build_excel_for_month(month_abbr):
+    """Build the full Excel workbook for the selected month and return as BytesIO."""
+    from output.excel_writer import build_output_workbook
+
+    analysis = get_analysis(month_abbr)
+    if not analysis:
+        return None
+
+    month_data = get_month_data(month_abbr)
+    budget = st.session_state.budget or {}
+    available = st.session_state.available
+    months_order = get_months_in_order(available)
+    all_months_data = get_all_months_data(months_order)
+
+    # Get prior month actuals
+    chronological = get_all_months_chronological(available)
+    prior_actuals = None
+    for i, (m, y) in enumerate(chronological):
+        if m == month_abbr and i > 0:
+            prior_m, prior_y = chronological[i - 1]
+            prior_data = get_month_data(prior_m)
+            if prior_data:
+                prior_actuals = prior_data.get("wholeco", {})
+            break
+
+    return build_output_workbook(
+        wholeco_variance=analysis["wholeco_variance"],
+        segment_variance=analysis["segment_variance"],
+        state_variances=analysis["state_variances"],
+        waterfall=analysis["waterfall"],
+        insights=analysis["insights"],
+        budget_data=budget,
+        actuals_by_month={m: d.get("wholeco", {}) for m, d in all_months_data.items()},
+        months_loaded=months_order,
+        month=month_abbr,
+        states=analysis["active_states"],
+        output_path=None,  # Return BytesIO stream
+        prior_month_actuals=prior_actuals,
+        working_days=analysis.get("working_days"),
+        clinics_detail=month_data.get("clinics_detail") if month_data else None,
+        mgmt_actuals=month_data.get("mgmt") if month_data else None,
+        margin_analysis=analysis.get("margin_analysis"),
+    )
+
+
 def render_sidebar():
     with st.sidebar:
         st.markdown(SIDEBAR_CSS, unsafe_allow_html=True)
@@ -183,38 +262,39 @@ def render_sidebar():
         st.markdown('<div class="sidebar-logo">Treetop Therapy</div>', unsafe_allow_html=True)
         st.markdown('<div class="sidebar-caption">Budget vs Actual Dashboard</div>', unsafe_allow_html=True)
 
-        # ─── Data Upload ────────────────────────────────────────
-        st.markdown('<div class="sidebar-section">Data Upload</div>', unsafe_allow_html=True)
-        uploaded = st.file_uploader(
-            "Upload Raw Data Tab",
-            type=["xlsx"],
-            help="Upload your monthly Raw Data Tab. All months will be parsed.",
-            label_visibility="collapsed",
-        )
-        if uploaded:
-            file_id = f"{uploaded.name}_{uploaded.size}"
-            if file_id != st.session_state.last_uploaded_file:
-                with st.spinner("Parsing raw data..."):
-                    try:
-                        saved, unmapped = process_raw_data_upload(
-                            uploaded.getvalue(), DEFAULT_MAPPING_PATH, uploaded.name
-                        )
-                        months_saved = list(saved.keys())
-                        st.session_state.last_uploaded_file = file_id
-                        st.session_state.analysis_cache = {}
-                        st.session_state.loaded_months = {}
-                        st.session_state.available = list_available_months()
-                        st.success(f"Parsed {len(months_saved)} months: {', '.join(months_saved)}")
-                        if unmapped:
-                            st.warning(f"{len(unmapped)} unmapped transactions")
-                        st.rerun()
-                    except Exception as e:
-                        st.error(f"Parse error: {e}")
-            else:
-                st.markdown(
-                    '<span class="status-pill status-loaded">Data loaded</span>',
-                    unsafe_allow_html=True,
-                )
+        # ─── Data Upload (local mode only) ────────────────────
+        if not IS_CLOUD:
+            st.markdown('<div class="sidebar-section">Data Upload</div>', unsafe_allow_html=True)
+            uploaded = st.file_uploader(
+                "Upload Raw Data Tab",
+                type=["xlsx"],
+                help="Upload your monthly Raw Data Tab. All months will be parsed.",
+                label_visibility="collapsed",
+            )
+            if uploaded:
+                file_id = f"{uploaded.name}_{uploaded.size}"
+                if file_id != st.session_state.last_uploaded_file:
+                    with st.spinner("Parsing raw data..."):
+                        try:
+                            saved, unmapped = process_raw_data_upload(
+                                uploaded.getvalue(), DEFAULT_MAPPING_PATH, uploaded.name
+                            )
+                            months_saved = list(saved.keys())
+                            st.session_state.last_uploaded_file = file_id
+                            st.session_state.analysis_cache = {}
+                            st.session_state.loaded_months = {}
+                            st.session_state.available = list_available_months()
+                            st.success(f"Parsed {len(months_saved)} months: {', '.join(months_saved)}")
+                            if unmapped:
+                                st.warning(f"{len(unmapped)} unmapped transactions")
+                            st.rerun()
+                        except Exception as e:
+                            st.error(f"Parse error: {e}")
+                else:
+                    st.markdown(
+                        '<span class="status-pill status-loaded">Data loaded</span>',
+                        unsafe_allow_html=True,
+                    )
 
         # ─── Month Selector ─────────────────────────────────────
         st.markdown('<div class="sidebar-section">Select Month</div>', unsafe_allow_html=True)
@@ -258,6 +338,26 @@ def render_sidebar():
             ["Executive Summary", "P&L Detail", "Margin Analysis", "Q&A"],
             label_visibility="collapsed",
         )
+
+        # ─── Excel Export ────────────────────────────────────────
+        if selected_month and st.session_state.budget:
+            st.markdown('<div class="sidebar-section">Export</div>', unsafe_allow_html=True)
+            if st.button("📥 Build Excel Report", use_container_width=True):
+                with st.spinner("Building Excel report..."):
+                    excel_bytes = _build_excel_for_month(selected_month)
+                    if excel_bytes:
+                        st.session_state["excel_download"] = excel_bytes
+                        st.session_state["excel_filename"] = f"Budget_vs_Actual_{selected_month}_2026.xlsx"
+                        st.rerun()
+
+            if "excel_download" in st.session_state:
+                st.download_button(
+                    label="💾 Save Excel File",
+                    data=st.session_state["excel_download"],
+                    file_name=st.session_state.get("excel_filename", "report.xlsx"),
+                    mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    use_container_width=True,
+                )
 
         return selected_month, page
 
@@ -856,52 +956,76 @@ def page_margin_analysis(month, analysis):
 
 
 # ══════════════════════════════════════════════════════════════════════
-# PAGE: Q&A (STUBBED)
+# PAGE: Q&A (Claude API)
 # ══════════════════════════════════════════════════════════════════════
 def page_qa(month):
-    render_inline('<div class="slds-page-header">Financial Q&A</div>')
-    st.caption(
-        "Ask natural language questions about your budget vs actual performance. "
-        "This feature will be connected to the Claude API."
+    render_inline(f'<div class="slds-page-header">Financial Q&A &mdash; {month}</div>')
+
+    if not qa_available():
+        st.warning(
+            "**Q&A requires an Anthropic API key.**\n\n"
+            "Add to `.streamlit/secrets.toml`:\n"
+            "```\nANTHROPIC_API_KEY = \"sk-ant-...\"\n```\n\n"
+            "Or set the `ANTHROPIC_API_KEY` environment variable."
+        )
+        return
+
+    # Build financial context for this month
+    analysis = get_analysis(month)
+    if not analysis:
+        st.info("No analysis data available for this month.")
+        return
+
+    month_data = get_month_data(month)
+    budget = st.session_state.budget or {}
+    available = st.session_state.available
+    months_order = get_months_in_order(available)
+    all_months_data = get_all_months_data(months_order)
+
+    context = qa_build_context(
+        month, analysis, month_data, budget, available, all_months_data
     )
 
+    # Action buttons row
+    c1, c2, c3 = st.columns([1, 1, 2])
+    with c1:
+        if st.button("📊 Generate 1-Pager", use_container_width=True):
+            with st.spinner("Generating executive summary..."):
+                summary = generate_summary_for_gamma(month, context)
+                st.session_state.qa_messages.append(
+                    {"role": "assistant", "content": f"**Executive Summary — {month}**\n\n{summary}"}
+                )
+                st.rerun()
+    with c2:
+        if st.button("🗑️ Clear Chat", use_container_width=True):
+            st.session_state.qa_messages = []
+            st.rerun()
+
+    st.divider()
+
+    # Chat history
     for msg in st.session_state.qa_messages:
         with st.chat_message(msg["role"]):
             st.markdown(msg["content"])
 
+    # Chat input
     if prompt := st.chat_input("Ask about your financials..."):
         st.session_state.qa_messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        response = (
-            "**Claude API not yet connected.**\n\n"
-            "When connected, I'll be able to answer questions like:\n"
-            "- *Why did EBITDA miss budget this month?*\n"
-            "- *Which states are driving revenue growth?*\n"
-            "- *What are the biggest expense overruns?*\n\n"
-            f"**Current data:** {month} loaded with "
-            f"{len(st.session_state.available)} months of history.\n\n"
-            "To enable Q&A, add your Anthropic API key to "
-            "`.streamlit/secrets.toml`:\n"
-            "```\nANTHROPIC_API_KEY = \"sk-ant-...\"\n```"
-        )
-        st.session_state.qa_messages.append({"role": "assistant", "content": response})
         with st.chat_message("assistant"):
-            st.markdown(response)
+            with st.spinner("Analyzing..."):
+                # Pass message history for conversational context
+                history = [m for m in st.session_state.qa_messages if m["role"] in ("user", "assistant")]
+                response = qa_ask(prompt, context, message_history=history[:-1])
+                st.markdown(response)
 
-    with st.expander("Data context that would be sent to Claude"):
-        month_data = get_month_data(month)
-        if month_data:
-            wc = month_data.get("wholeco", {})
-            st.json({
-                "month": month,
-                "revenue": wc.get("Total Revenue", 0),
-                "gross_profit": wc.get("Gross Profit", 0),
-                "ebitda": wc.get("EBITDA", 0),
-                "states": list(month_data.get("states", {}).keys()),
-                "clinics": list(month_data.get("clinics_detail", {}).keys()),
-            })
+        st.session_state.qa_messages.append({"role": "assistant", "content": response})
+
+    # Context expander (debug/transparency)
+    with st.expander("📋 Data context sent to Claude"):
+        st.code(context, language="markdown")
 
 
 # ══════════════════════════════════════════════════════════════════════
