@@ -959,6 +959,216 @@
       "account": "Retention Specialist Payroll Wages",
       "pnl_item": "Corporate Overhead Wages",
       "amount": 8349.61
+    },
+    {
+      "account": "75 .04 Clinical Supplies",
+      "pnl_item": "Supplies",
+      "amount": 8096.37
+    },
+    {
+      "account": ".03 Background Checks",
+      "pnl_item": "Background Checks",
+      "amount": 8086.1
+    },
+    {
+      "account": "112 .11 Legal Fees",
+      "pnl_item": "Consulting & Contract",
+      "amount": 7817.5
+    },
+    {
+      "account": "Marketing and Outreach Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 7783.78
+    },
+    {
+      "account": "49 Clinic Utilities",
+      "pnl_item": "Clinic Utilities",
+      "amount": 7758.83
+    },
+    {
+      "account": ".05 General Supplies",
+      "pnl_item": "Supplies",
+      "amount": 7118.13
+    },
+    {
+      "account": "51 Clinic Housekeeping",
+      "pnl_item": "Other Clinic Expense",
+      "amount": 6898.05
+    },
+    {
+      "account": "64300 .08 Meals and Entertainment",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 6512.24
+    },
+    {
+      "account": "Licenses & Certifications",
+      "pnl_item": "Other G&A",
+      "amount": 5636.38
+    },
+    {
+      "account": "Recruiting - Indeed BCBA",
+      "pnl_item": "Recruiting Expenses",
+      "amount": 5458.02
+    },
+    {
+      "account": "Credentialing Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 5382.5
+    },
+    {
+      "account": "Vehicle Expenses",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 4870.32
+    },
+    {
+      "account": ".02 Contracted Labor",
+      "pnl_item": "Consulting & Contract",
+      "amount": 4832.5
+    },
+    {
+      "account": ".01 Other Operating Expenses",
+      "pnl_item": "Other Clinic Expense",
+      "amount": 4550.17
+    },
+    {
+      "account": "Promotional Merchandise",
+      "pnl_item": "Other G&A",
+      "amount": 4516.83
+    },
+    {
+      "account": "Community Liaison Sign-On Bonus",
+      "pnl_item": "Referrals Expense",
+      "amount": 3600.0
+    },
+    {
+      "account": "50 Clinic Repairs & Maintenance",
+      "pnl_item": "Other Clinic Expense",
+      "amount": 3524.84
+    },
+    {
+      "account": "68 SEO",
+      "pnl_item": "Marketing Expense",
+      "amount": 3459.0
+    },
+    {
+      "account": "Retention Bonus",
+      "pnl_item": "StateOps Bonus",
+      "amount": 3333.0
+    },
+    {
+      "account": "Intake Coordinator Performance Bonus",
+      "pnl_item": "Corporate Overhead Bonus",
+      "amount": 3000.0
+    },
+    {
+      "account": "Recruiter Performance Bonus",
+      "pnl_item": "Corporate Overhead Bonus",
+      "amount": 3000.0
+    },
+    {
+      "account": "Airfare",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 2785.69
+    },
+    {
+      "account": "Referral Bonus",
+      "pnl_item": "Corporate Overhead Bonus",
+      "amount": 2500.0
+    },
+    {
+      "account": "67 Marketing - Google Management",
+      "pnl_item": "Marketing Expense",
+      "amount": 2250.0
+    },
+    {
+      "account": "65 Marketing - Facebook Management",
+      "pnl_item": "Marketing Expense",
+      "amount": 2250.0
+    },
+    {
+      "account": "Employee Gifts",
+      "pnl_item": "Other G&A",
+      "amount": 2198.88
+    },
+    {
+      "account": "Community Liaison Outreach Bonus",
+      "pnl_item": "Referrals Expense",
+      "amount": 1750.0
+    },
+    {
+      "account": "Credit Card Processing",
+      "pnl_item": "Other G&A",
+      "amount": 1477.76
+    },
+    {
+      "account": "Recruiting - Indeed Intake Coordinator",
+      "pnl_item": "Recruiting Expenses",
+      "amount": 1273.37
+    },
+    {
+      "account": "105 Management Office Expenses",
+      "pnl_item": "Corporate Office Expense",
+      "amount": 1200.0
+    },
+    {
+      "account": "Office Supplies",
+      "pnl_item": "Supplies",
+      "amount": 1195.57
+    },
+    {
+      "account": "Center Director Performance Bonus",
+      "pnl_item": "StateOps Bonus",
+      "amount": 1000.0
+    },
+    {
+      "account": "Operations Manager Performance Bonus",
+      "pnl_item": "StateOps Bonus",
+      "amount": 1000.0
+    },
+    {
+      "account": "Scheduling Specialist Performance Bonus",
+      "pnl_item": "Corporate Overhead Bonus",
+      "amount": 1000.0
+    },
+    {
+      "account": "Training Specialist Performance Bonus",
+      "pnl_item": "Corporate Overhead Bonus",
+      "amount": 1000.0
+    },
+    {
+      "account": "74 Accounting Software",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 595.96
+    },
+    {
+      "account": "Recruitment Software",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 582.99
+    },
+    {
+      "account": "60400 Bank  Service Charges",
+      "pnl_item": "Other G&A",
+      "amount": 461.93
+    },
+    {
+      "account": "99 Continuing Education",
+      "pnl_item": "Other G&A",
+      "amount": 382.99
+    },
+    {
+      "account": "96 Shipping & Postage",
+      "pnl_item": "Supplies",
+      "amount": 379.48
+    },
+    {
+      "account": "Conference & Education",
+      "pnl_item": "Other G&A",
+      "amount": 250.0
+    },
+    {
+      "account": "Indeed Fees",
+      "pnl_item": "Other G&A",
+      "amount": 0.0
     }
   ],
   "vendor_summary": [

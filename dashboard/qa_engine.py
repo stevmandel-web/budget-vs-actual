@@ -196,6 +196,36 @@ def build_context(month_abbr, analysis, month_data, budget, available_months, al
                     continue  # Skip very small sub-accounts
                 lines.append(f"  - {acct}: ${amt:,.0f}")
 
+    # Expense line items broken down by state (for "where is consulting spend?" questions)
+    states_data = month_data.get("states", {})
+    if states_data:
+        # Collect all expense line items that appear across states
+        expense_items = set()
+        for st_data in states_data.values():
+            for item in st_data:
+                if item not in ("Total Revenue", "BT Revenue", "BCBA Supervision Revenue",
+                                "BCBA Assessment Revenue", "Other Revenue") and not item.startswith("Total") and not item.startswith("Gross"):
+                    expense_items.add(item)
+        # Show breakdown for items that have meaningful state distribution
+        state_breakdowns = []
+        for item in sorted(expense_items):
+            item_by_state = {}
+            for st, st_data in states_data.items():
+                val = st_data.get(item, 0)
+                if abs(val) >= 100:
+                    item_by_state[st] = val
+            if len(item_by_state) >= 1:
+                total = sum(item_by_state.values())
+                if abs(total) >= 1000:
+                    state_breakdowns.append((item, total, item_by_state))
+        if state_breakdowns:
+            lines.append("")
+            lines.append("### Expense Line Items by State")
+            lines.append("(Shows which states drive each expense line item)")
+            for item, total, by_state in sorted(state_breakdowns, key=lambda x: -abs(x[1])):
+                parts = [f"{st}: ${v:,.0f}" for st, v in sorted(by_state.items(), key=lambda x: -abs(x[1]))]
+                lines.append(f"- **{item}** (${total:,.0f}): {', '.join(parts)}")
+
     # Cross-month GL account trends (for "what grew/changed" questions)
     if all_months_data and len(all_months_data) > 1:
         lines.append("")

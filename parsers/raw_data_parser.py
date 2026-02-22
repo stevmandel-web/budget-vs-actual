@@ -327,9 +327,9 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
                 "pnl_item": gl_to_pnl.get(acct, "Unknown"),
                 "amount": round(total, 2),
             })
-        # Sort by absolute amount descending, keep top 50
+        # Sort by absolute amount descending, keep ALL accounts
         gl_list.sort(key=lambda x: abs(x["amount"]), reverse=True)
-        gl_summaries[m] = gl_list[:50]
+        gl_summaries[m] = gl_list
 
     # Build vendor summaries per month, grouped by P&L line item
     # vendor_by_pnl: { month: { pnl_item: [ {vendor, amount, txn_count}, ... ] } }

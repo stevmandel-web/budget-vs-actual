@@ -989,6 +989,141 @@
       "account": "Retention Specialist Payroll Wages",
       "pnl_item": "Corporate Overhead Wages",
       "amount": 9769.64
+    },
+    {
+      "account": "Promotional Merchandise",
+      "pnl_item": "Other G&A",
+      "amount": 9761.02
+    },
+    {
+      "account": "92 .15 Payroll Fees",
+      "pnl_item": "Payroll Expense",
+      "amount": 8727.82
+    },
+    {
+      "account": "Licenses & Certifications",
+      "pnl_item": "Other G&A",
+      "amount": 8720.78
+    },
+    {
+      "account": "75 .04 Clinical Supplies",
+      "pnl_item": "Supplies",
+      "amount": 8691.82
+    },
+    {
+      "account": ".05 General Supplies",
+      "pnl_item": "Supplies",
+      "amount": 8567.92
+    },
+    {
+      "account": ".03 Background Checks",
+      "pnl_item": "Background Checks",
+      "amount": 7307.44
+    },
+    {
+      "account": "64300 .08 Meals and Entertainment",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 6933.41
+    },
+    {
+      "account": "49 Clinic Utilities",
+      "pnl_item": "Clinic Utilities",
+      "amount": 6767.83
+    },
+    {
+      "account": "50 Clinic Repairs & Maintenance",
+      "pnl_item": "Other Clinic Expense",
+      "amount": 6393.13
+    },
+    {
+      "account": "Credentialing Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 6153.0
+    },
+    {
+      "account": "Airfare",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 5930.72
+    },
+    {
+      "account": "DBL/PFL/Workers'Comp",
+      "pnl_item": "Benefits & Insurance",
+      "amount": 5417.01
+    },
+    {
+      "account": ".02 Contracted Labor",
+      "pnl_item": "Consulting & Contract",
+      "amount": 5244.0
+    },
+    {
+      "account": "68 SEO",
+      "pnl_item": "Marketing Expense",
+      "amount": 4000.0
+    },
+    {
+      "account": "Hotel",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 3420.97
+    },
+    {
+      "account": "Vehicle Expenses",
+      "pnl_item": "Travel & Entertainment",
+      "amount": 3063.25
+    },
+    {
+      "account": "96 Shipping & Postage",
+      "pnl_item": "Supplies",
+      "amount": 2422.95
+    },
+    {
+      "account": "Credit Card Processing",
+      "pnl_item": "Other G&A",
+      "amount": 2106.82
+    },
+    {
+      "account": "Employee Gifts",
+      "pnl_item": "Other G&A",
+      "amount": 1963.78
+    },
+    {
+      "account": "Marketing/Recruiting",
+      "pnl_item": "Recruiting Expenses",
+      "amount": 1925.0
+    },
+    {
+      "account": "99 Continuing Education",
+      "pnl_item": "Other G&A",
+      "amount": 1282.21
+    },
+    {
+      "account": "Office Supplies",
+      "pnl_item": "Supplies",
+      "amount": 1016.02
+    },
+    {
+      "account": ".16 Contractors",
+      "pnl_item": "Consulting & Contract",
+      "amount": 1000.0
+    },
+    {
+      "account": "74 Accounting Software",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 896.85
+    },
+    {
+      "account": "Recruitment Software",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 582.99
+    },
+    {
+      "account": "Conference & Education",
+      "pnl_item": "Other G&A",
+      "amount": 552.0
+    },
+    {
+      "account": "60400 Bank  Service Charges",
+      "pnl_item": "Other G&A",
+      "amount": 443.74
     }
   ],
   "vendor_summary": [
