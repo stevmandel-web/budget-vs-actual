@@ -236,6 +236,47 @@ GLOBAL_CSS = f"""
         margin-top: 0.125rem;
     }}
 
+    /* Revenue per Working Day banner */
+    .rev-per-day {{
+        background: linear-gradient(135deg, {SLDS["bg_header"]} 0%, #e8edf5 100%);
+        border: 1px solid {SLDS["border"]};
+        border-radius: 6px;
+        padding: 0.75rem 1.25rem;
+        margin: 0.5rem 0 0.75rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+    }}
+    .rev-per-day-main {{
+        display: flex;
+        align-items: baseline;
+        gap: 0.5rem;
+    }}
+    .rev-per-day-label {{
+        font-size: 0.6875rem;
+        font-weight: 600;
+        color: {SLDS["text_secondary"]};
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }}
+    .rev-per-day-value {{
+        font-size: 1.375rem;
+        font-weight: 700;
+        color: {SLDS["brand_dark"]};
+    }}
+    .rev-per-day-detail {{
+        font-size: 0.75rem;
+        color: {SLDS["text_secondary"]};
+    }}
+    .rev-per-day-detail .favorable {{ color: {SLDS["success_dark"]}; font-weight: 600; }}
+    .rev-per-day-detail .unfavorable {{ color: {SLDS["error_dark"]}; font-weight: 600; }}
+    .rev-per-day-sep {{
+        width: 1px;
+        height: 28px;
+        background: {SLDS["border"]};
+    }}
+
     /* Section header */
     .slds-section {{
         font-size: 1rem;
@@ -292,6 +333,97 @@ def fmt_compact(val):
     if abs_val >= 1_000:
         return f"{sign}${abs_val / 1_000:.0f}K"
     return f"{sign}${abs_val:,.0f}"
+
+
+def html_rev_per_day_banner(revenue, working_days, budget_rev=None,
+                            budget_working_days=None, prior_rev=None,
+                            prior_working_days=None, prior_label="Prior"):
+    """Render a styled Revenue per Working Day banner.
+
+    Args:
+        revenue: actual total revenue for current period
+        working_days: working days in current period
+        budget_rev: budget revenue (optional)
+        budget_working_days: budget working days (optional, defaults to same as actual)
+        prior_rev: prior month revenue (optional)
+        prior_working_days: prior month working days (optional)
+        prior_label: label for prior period (e.g. "Dec")
+    """
+    if not working_days or not revenue:
+        return ""
+
+    rpd = revenue / working_days
+
+    parts = []
+    # Main value
+    parts.append(f"""
+        <div class="rev-per-day-main">
+            <span class="rev-per-day-label">Rev / Working Day</span>
+            <span class="rev-per-day-value">${rpd:,.0f}</span>
+            <span class="rev-per-day-detail">({working_days} days)</span>
+        </div>
+    """)
+
+    # Budget comparison
+    if budget_rev is not None and budget_rev > 0:
+        bwd = budget_working_days or working_days
+        bud_rpd = budget_rev / bwd
+        delta = rpd - bud_rpd
+        delta_pct = delta / bud_rpd * 100 if bud_rpd else 0
+        cls = "favorable" if delta >= 0 else "unfavorable"
+        parts.append(f'<div class="rev-per-day-sep"></div>')
+        parts.append(f"""
+            <div class="rev-per-day-detail">
+                Budget: ${bud_rpd:,.0f}/day
+                <span class="{cls}">{delta:+,.0f} ({delta_pct:+.1f}%)</span>
+            </div>
+        """)
+
+    # Prior month comparison
+    if prior_rev is not None and prior_working_days and prior_rev > 0:
+        prior_rpd = prior_rev / prior_working_days
+        delta = rpd - prior_rpd
+        delta_pct = delta / prior_rpd * 100 if prior_rpd else 0
+        cls = "favorable" if delta >= 0 else "unfavorable"
+        parts.append(f'<div class="rev-per-day-sep"></div>')
+        parts.append(f"""
+            <div class="rev-per-day-detail">
+                {prior_label}: ${prior_rpd:,.0f}/day
+                <span class="{cls}">{delta:+,.0f} ({delta_pct:+.1f}%)</span>
+            </div>
+        """)
+
+    return f'<div class="rev-per-day">{"".join(parts)}</div>'
+
+
+def html_rev_per_day_table_row(revenue, working_days, ncols, budget_rev=None,
+                                budget_working_days=None):
+    """Render an inline Rev/Working Day row for P&L tables.
+
+    Returns an HTML <tr> that can be injected after Total Revenue in any table.
+    """
+    if not working_days or not revenue:
+        return ""
+
+    rpd = revenue / working_days
+    rpd_str = f"${rpd:,.0f}/day ({working_days} days)"
+
+    cells = f'<td class="indent" style="color:{SLDS["brand_dark"]};font-weight:600;font-size:0.75rem;">Rev / Working Day</td>'
+    cells += f'<td class="num" style="color:{SLDS["brand_dark"]};font-weight:600;font-size:0.75rem;">{rpd_str}</td>'
+
+    if budget_rev is not None and budget_working_days:
+        bud_rpd = budget_rev / budget_working_days if budget_working_days else 0
+        delta = rpd - bud_rpd
+        cls = "favorable" if delta >= 0 else "unfavorable"
+        cells += f'<td class="num" style="font-size:0.75rem;">${bud_rpd:,.0f}/day</td>'
+        cells += f'<td class="num {cls}" style="font-size:0.75rem;">{delta:+,.0f}</td>'
+        cells += f'<td class="num" style="font-size:0.75rem;"></td>'
+    else:
+        # Fill remaining columns
+        for _ in range(ncols - 2):
+            cells += '<td></td>'
+
+    return f'<tr style="background:linear-gradient(135deg,{SLDS["bg_header"]},#e8edf5);">{cells}</tr>'
 
 
 _PCT_LABEL_MAP = {
