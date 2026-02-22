@@ -93,24 +93,23 @@ def build_context(month_abbr, analysis, month_data, budget, available_months, al
             parts.append(f"({pct_var*100:+.1f}%)")
         lines.append("- " + " | ".join(parts))
 
-    # Segment summary
-    seg = analysis.get("segment_variance", {})
-    if seg:
+    # Segment summary — segment_variance is a flat list of rows with home_/clinic_ prefixed keys
+    seg_rows = analysis.get("segment_variance", [])
+    if seg_rows and isinstance(seg_rows, list):
         lines.append("")
         lines.append("### Segment Summary (Home vs Clinic)")
         for segment in ["home", "clinic"]:
-            seg_data = seg.get(segment, {})
-            if isinstance(seg_data, list) and seg_data:
-                ebitda_row = next((r for r in seg_data if r.get("label") == "EBITDA"), None)
-                rev_row = next((r for r in seg_data if r.get("label") == "Total Revenue"), None)
-                if ebitda_row and rev_row:
-                    ebitda_a = ebitda_row.get("actual", 0)
-                    rev_a = rev_row.get("actual", 0)
-                    margin = ebitda_a / rev_a * 100 if rev_a else 0
-                    line = f"- {segment.title()}: Revenue ${rev_a:,.0f}, EBITDA ${ebitda_a:,.0f} ({margin:.1f}% margin)"
-                    if ebitda_row.get("budget") is not None:
-                        line += f" | Budget EBITDA ${ebitda_row['budget']:,.0f}"
-                    lines.append(line)
+            ebitda_row = next((r for r in seg_rows if r.get("label") == "EBITDA"), None)
+            rev_row = next((r for r in seg_rows if r.get("label") == "Total Revenue"), None)
+            if ebitda_row and rev_row:
+                ebitda_a = ebitda_row.get(f"{segment}_actual", 0) or 0
+                rev_a = rev_row.get(f"{segment}_actual", 0) or 0
+                margin = ebitda_a / rev_a * 100 if rev_a else 0
+                line = f"- {segment.title()}: Revenue ${rev_a:,.0f}, EBITDA ${ebitda_a:,.0f} ({margin:.1f}% margin)"
+                budget_val = ebitda_row.get(f"{segment}_budget")
+                if budget_val is not None:
+                    line += f" | Budget EBITDA ${budget_val:,.0f}"
+                lines.append(line)
 
     # State summary
     state_vars = analysis.get("state_variances", {})
