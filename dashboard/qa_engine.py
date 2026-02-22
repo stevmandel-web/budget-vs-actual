@@ -20,6 +20,9 @@ You have access to the company's Budget vs Actual P&L data. Your role:
 - Highlight trends when multiple months of data are available
 - Flag concerns proactively (e.g., negative EBITDA, declining margins)
 - Keep answers concise (2-4 paragraphs) unless the user asks for detail
+- Format responses with clear paragraph breaks (blank lines between sections)
+- Use markdown bullet points and bold for emphasis
+- IMPORTANT: When writing dollar amounts, do NOT use a bare $ prefix — instead write "USD" or spell out amounts to avoid rendering issues. For example write "1.2M" or "USD 1,234" instead of "$1,234"
 
 Key terminology:
 - BT = Behavior Technician (direct care staff)
@@ -228,7 +231,10 @@ def ask(question, context, message_history=None, model="claude-haiku-4-5-2025100
             system=system,
             messages=messages,
         )
-        return response.content[0].text
+        text = response.content[0].text
+        # Escape $ signs so Streamlit doesn't interpret them as LaTeX
+        text = text.replace("$", "\\$")
+        return text
     except Exception as e:
         return f"**Error querying Claude:** {str(e)}"
 
