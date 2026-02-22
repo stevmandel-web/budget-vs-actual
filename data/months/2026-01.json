@@ -2,8 +2,8 @@
   "meta": {
     "month": "Jan",
     "year": 2026,
-    "source_file": "Raw Data Tab .xlsx",
-    "parsed_at": "2026-02-20T17:03:42.583127",
+    "source_file": "Raw Data Tab.xlsx",
+    "parsed_at": "2026-02-22T12:59:06.483211",
     "parser": "raw_data"
   },
   "wholeco": {
@@ -739,150 +739,722 @@
       "EBITDA": 46742.78000000003
     }
   },
-  "unmapped_transactions": [
+  "gl_detail": [
     {
-      "date": "10/01/2025",
-      "account": "Revenue AZ",
-      "item_class": "Utah",
-      "amount": 1035.0,
-      "transaction_type": "Invoice",
-      "full_name": "Revenue AZ"
+      "account": "7 Technician Revenue",
+      "pnl_item": "BT Revenue",
+      "amount": 3219432.64
     },
     {
-      "date": "10/27/2025",
-      "account": "Revenue AZ",
-      "item_class": "Utah",
-      "amount": -1035.0,
-      "transaction_type": "Journal Entry",
-      "full_name": "Revenue AZ"
+      "account": "14 Technician Payroll Wages",
+      "pnl_item": "BT Wages",
+      "amount": 1249761.97
     },
     {
-      "date": "11/30/2025",
-      "account": "Revenue AZ",
-      "item_class": "Arizona",
-      "amount": -1298.18,
-      "transaction_type": "Journal Entry",
-      "full_name": "Revenue AZ"
+      "account": "11 BCBA Payroll Wages",
+      "pnl_item": "BCBA Wages",
+      "amount": 796654.92
     },
     {
-      "date": "11/30/2025",
-      "account": "Revenue AZ",
-      "item_class": "Arizona",
-      "amount": 1298.18,
-      "transaction_type": "Sales Receipt",
-      "full_name": "Revenue AZ"
+      "account": "5 Supervision Revenue",
+      "pnl_item": "BCBA Supervision Revenue",
+      "amount": 593791.44
     },
     {
-      "date": "10/31/2025",
-      "account": "Other Income",
-      "item_class": "Management",
-      "amount": 176.48,
-      "transaction_type": "Deposit",
-      "full_name": "Other Income"
+      "account": "4 Assessment Revenue",
+      "pnl_item": "BCBA Assessment Revenue",
+      "amount": 256159.22
     },
     {
-      "date": "10/31/2025",
-      "account": "Other Income",
-      "item_class": "Management",
-      "amount": 383.72,
-      "transaction_type": "Deposit",
-      "full_name": "Other Income"
+      "account": "01 Billing Fees Expense",
+      "pnl_item": "Billing Expense",
+      "amount": 173752.83
     },
     {
-      "date": "10/08/2025",
-      "account": "Other Income",
-      "item_class": "Nevada",
-      "amount": 528.0,
-      "transaction_type": "Deposit",
-      "full_name": "Other Income"
+      "account": ".14 Bad Debt",
+      "pnl_item": "Bad Debt Expense",
+      "amount": 123475.8
     },
     {
-      "date": "11/04/2025",
-      "account": "Other Income",
-      "item_class": "Management",
-      "amount": 0.07,
-      "transaction_type": "Deposit",
-      "full_name": "Other Income"
+      "account": "102 Management Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 123360.86
     },
     {
-      "date": "10/31/2025",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 3347.81,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "24 Clinical Director Payroll Wages",
+      "pnl_item": "RCD Wages",
+      "amount": 119670.19
     },
     {
-      "date": "10/31/2025",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 160.25,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "48 Clinic Rent",
+      "pnl_item": "Clinic Rent",
+      "amount": 107630.05
     },
     {
-      "date": "11/30/2025",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 3347.81,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "27 Operations Manager Payroll Wages",
+      "pnl_item": "Ops Manager Wages",
+      "amount": 93386.06
     },
     {
-      "date": "11/30/2025",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 160.25,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "6 Family Guidance Revenue",
+      "pnl_item": "Other Revenue",
+      "amount": 80906.99
     },
     {
-      "date": "12/31/2025",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 3347.81,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "Center Director Payroll Wages",
+      "pnl_item": "Clinic Director Wages",
+      "amount": 75132.41
     },
     {
-      "date": "12/31/2025",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 160.25,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "80 401k Matching",
+      "pnl_item": "Benefits & Insurance",
+      "amount": 72559.44
     },
     {
-      "date": "01/31/2026",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 3347.81,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "79 Employee Insurance",
+      "pnl_item": "Benefits & Insurance",
+      "amount": 71345.31
     },
     {
-      "date": "01/31/2026",
-      "account": ".02 Non-Operating Expenses:62400 Depreciation Expense",
-      "item_class": "Phoenix Clinic",
-      "amount": 160.25,
-      "transaction_type": "Journal Entry",
-      "full_name": ".02 Non-Operating Expenses:Depreciation Expense"
+      "account": "32 Technician Recruiter Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 66889.53
     },
     {
-      "date": "11/03/2025",
-      "account": ".02 Non-Operating Expenses:Legal Fees-  Restructuring",
-      "item_class": "Management",
-      "amount": 119.0,
-      "transaction_type": "Bill",
-      "full_name": ".02 Non-Operating Expenses:Legal Fees-  Restructuring"
+      "account": "Intake Coordinator Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 66108.58
     },
     {
-      "date": "11/03/2025",
-      "account": ".02 Non-Operating Expenses:Legal Fees-  Restructuring",
-      "item_class": "Management",
-      "amount": 311.5,
-      "transaction_type": "Bill",
-      "full_name": ".02 Non-Operating Expenses:Legal Fees-  Restructuring"
+      "account": "Quality & Training Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 56310.23
+    },
+    {
+      "account": "66 Marketing - Google",
+      "pnl_item": "Advertising Expense",
+      "amount": 50500.0
+    },
+    {
+      "account": "VP Operations Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 47847.96
+    },
+    {
+      "account": "IT Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 43901.77
+    },
+    {
+      "account": "72 Billing Software",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 43362.04
+    },
+    {
+      "account": "35 Community Liaison Payroll Wages",
+      "pnl_item": "Referrals Expense",
+      "amount": 42948.4
+    },
+    {
+      "account": "State Director Payroll Wages",
+      "pnl_item": "State Director Wages",
+      "amount": 39187.14
+    },
+    {
+      "account": "Scheduling Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 38331.65
+    },
+    {
+      "account": "Finance & HR Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 35582.5
+    },
+    {
+      "account": "30 BCBA Recruiter Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 34028.74
+    },
+    {
+      "account": "64 Marketing - Facebook",
+      "pnl_item": "Advertising Expense",
+      "amount": 30813.54
+    },
+    {
+      "account": "Assessment Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 28187.71
+    },
+    {
+      "account": "71 Clinical Software",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 27901.5
+    },
+    {
+      "account": "Real Estate Operations Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 25973.47
+    },
+    {
+      "account": "Recruiting - Indeed BCBA",
+      "pnl_item": "Recruiting Expenses",
+      "amount": 22710.0
+    },
+    {
+      "account": "Compliance Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 22322.69
+    },
+    {
+      "account": "93 .01 Technology",
+      "pnl_item": "IT & Technology",
+      "amount": 21008.9
+    },
+    {
+      "account": "94 .04 Consulting",
+      "pnl_item": "Consulting & Contract",
+      "amount": 20000.0
+    },
+    {
+      "account": "BCBA Performance Bonus",
+      "pnl_item": "BCBA Performance Bonus",
+      "amount": 20000.0
+    },
+    {
+      "account": "Clinical Director Performance Bonus",
+      "pnl_item": "StateOps Bonus",
+      "amount": 20000.0
+    },
+    {
+      "account": ".01 Other Operating Expenses",
+      "pnl_item": "Other Clinic Expense",
+      "amount": 19442.78
+    },
+    {
+      "account": "Billing Manager Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 19334.64
+    },
+    {
+      "account": "Contracted Team Lead Wages",
+      "pnl_item": "Referrals Expense",
+      "amount": 18775.0
+    },
+    {
+      "account": "Marketing and Outreach Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 16981.12
+    },
+    {
+      "account": "Executive Director Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 16122.39
+    },
+    {
+      "account": "Management Office Rent",
+      "pnl_item": "Corporate Rent",
+      "amount": 16100.34
+    },
+    {
+      "account": "63 General Marketing",
+      "pnl_item": "Advertising Expense",
+      "amount": 15071.59
+    },
+    {
+      "account": "Case Management Revenue",
+      "pnl_item": "Other Revenue",
+      "amount": 12996.22
+    },
+    {
+      "account": "51 Clinic Housekeeping",
+      "pnl_item": "Other Clinic Expense",
+      "amount": 12594.43
+    },
+    {
+      "account": "68100 .13 IT",
+      "pnl_item": "IT & Technology",
+      "amount": 11920.6
+    },
+    {
+      "account": ".06 Dues & Subscriptions",
+      "pnl_item": "Dues & Subscriptions",
+      "amount": 11033.82
+    },
+    {
+      "account": "BCBA Sign-On Bonus",
+      "pnl_item": "BCBA Sign-On Bonus",
+      "amount": 10000.0
+    },
+    {
+      "account": "Retention Specialist Payroll Wages",
+      "pnl_item": "Corporate Overhead Wages",
+      "amount": 9769.64
     }
-  ]
+  ],
+  "vendor_summary": [
+    {
+      "vendor": "Unknown",
+      "amount": 3219432.64,
+      "txn_count": 21,
+      "pnl_item": "BT Revenue"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 1249761.97,
+      "txn_count": 20,
+      "pnl_item": "BT Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 796654.92,
+      "txn_count": 178,
+      "pnl_item": "BCBA Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 657206.48,
+      "txn_count": 67,
+      "pnl_item": "Corporate Overhead Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 593791.44,
+      "txn_count": 21,
+      "pnl_item": "BCBA Supervision Revenue"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 256159.22,
+      "txn_count": 20,
+      "pnl_item": "BCBA Assessment Revenue"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 173752.83,
+      "txn_count": 20,
+      "pnl_item": "Billing Expense"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 149321.76,
+      "txn_count": 77,
+      "pnl_item": "Benefits & Insurance"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 123475.8,
+      "txn_count": 20,
+      "pnl_item": "Bad Debt Expense"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 119670.19,
+      "txn_count": 15,
+      "pnl_item": "RCD Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 107630.05,
+      "txn_count": 19,
+      "pnl_item": "Clinic Rent"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 95485.13,
+      "txn_count": 203,
+      "pnl_item": "Advertising Expense"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 93903.21,
+      "txn_count": 24,
+      "pnl_item": "Other Revenue"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 93386.06,
+      "txn_count": 18,
+      "pnl_item": "Ops Manager Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 83777.2,
+      "txn_count": 91,
+      "pnl_item": "Dues & Subscriptions"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 75132.41,
+      "txn_count": 8,
+      "pnl_item": "Clinic Director Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 61723.4,
+      "txn_count": 8,
+      "pnl_item": "Referrals Expense"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 39187.14,
+      "txn_count": 4,
+      "pnl_item": "State Director Wages"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 38430.34,
+      "txn_count": 89,
+      "pnl_item": "Other Clinic Expense"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 32929.5,
+      "txn_count": 111,
+      "pnl_item": "IT & Technology"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 26244.0,
+      "txn_count": 8,
+      "pnl_item": "Consulting & Contract"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 24830.35,
+      "txn_count": 112,
+      "pnl_item": "Other G&A"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 24635.0,
+      "txn_count": 42,
+      "pnl_item": "Recruiting Expenses"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 20661.39,
+      "txn_count": 378,
+      "pnl_item": "Supplies"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 20000.0,
+      "txn_count": 5,
+      "pnl_item": "BCBA Performance Bonus"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 20000.0,
+      "txn_count": 5,
+      "pnl_item": "StateOps Bonus"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 19128.4,
+      "txn_count": 176,
+      "pnl_item": "Travel & Entertainment"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 16100.34,
+      "txn_count": 5,
+      "pnl_item": "Corporate Rent"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 10000.0,
+      "txn_count": 5,
+      "pnl_item": "BCBA Sign-On Bonus"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 8727.82,
+      "txn_count": 28,
+      "pnl_item": "Payroll Expense"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 7307.44,
+      "txn_count": 4,
+      "pnl_item": "Background Checks"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 6767.83,
+      "txn_count": 36,
+      "pnl_item": "Clinic Utilities"
+    },
+    {
+      "vendor": "Unknown",
+      "amount": 4000.0,
+      "txn_count": 3,
+      "pnl_item": "Marketing Expense"
+    },
+    {
+      "vendor": "ARIZONA AR",
+      "amount": 900.0,
+      "txn_count": 1,
+      "pnl_item": "Advertising Expense"
+    },
+    {
+      "vendor": "AR 2023",
+      "amount": 219.95,
+      "txn_count": 1,
+      "pnl_item": "Travel & Entertainment"
+    },
+    {
+      "vendor": "AR 2023",
+      "amount": 37.32,
+      "txn_count": 1,
+      "pnl_item": "Supplies"
+    }
+  ],
+  "vendor_by_pnl": {
+    "Billing Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 173752.83,
+        "txn_count": 20
+      }
+    ],
+    "Other Clinic Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 38430.34,
+        "txn_count": 89
+      }
+    ],
+    "BT Revenue": [
+      {
+        "vendor": "Unknown",
+        "amount": 3219432.64,
+        "txn_count": 21
+      }
+    ],
+    "BCBA Supervision Revenue": [
+      {
+        "vendor": "Unknown",
+        "amount": 593791.44,
+        "txn_count": 21
+      }
+    ],
+    "Other Revenue": [
+      {
+        "vendor": "Unknown",
+        "amount": 93903.21,
+        "txn_count": 24
+      }
+    ],
+    "BCBA Assessment Revenue": [
+      {
+        "vendor": "Unknown",
+        "amount": 256159.22,
+        "txn_count": 20
+      }
+    ],
+    "BT Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 1249761.97,
+        "txn_count": 20
+      }
+    ],
+    "BCBA Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 796654.92,
+        "txn_count": 178
+      }
+    ],
+    "Dues & Subscriptions": [
+      {
+        "vendor": "Unknown",
+        "amount": 83777.2,
+        "txn_count": 91
+      }
+    ],
+    "Payroll Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 8727.82,
+        "txn_count": 28
+      }
+    ],
+    "IT & Technology": [
+      {
+        "vendor": "Unknown",
+        "amount": 32929.5,
+        "txn_count": 111
+      }
+    ],
+    "Travel & Entertainment": [
+      {
+        "vendor": "Unknown",
+        "amount": 19128.4,
+        "txn_count": 176
+      },
+      {
+        "vendor": "AR 2023",
+        "amount": 219.95,
+        "txn_count": 1
+      }
+    ],
+    "Consulting & Contract": [
+      {
+        "vendor": "Unknown",
+        "amount": 26244.0,
+        "txn_count": 8
+      }
+    ],
+    "Background Checks": [
+      {
+        "vendor": "Unknown",
+        "amount": 7307.44,
+        "txn_count": 4
+      }
+    ],
+    "Bad Debt Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 123475.8,
+        "txn_count": 20
+      }
+    ],
+    "Other G&A": [
+      {
+        "vendor": "Unknown",
+        "amount": 24830.35,
+        "txn_count": 112
+      }
+    ],
+    "Supplies": [
+      {
+        "vendor": "Unknown",
+        "amount": 20661.39,
+        "txn_count": 378
+      },
+      {
+        "vendor": "AR 2023",
+        "amount": 37.32,
+        "txn_count": 1
+      }
+    ],
+    "Corporate Rent": [
+      {
+        "vendor": "Unknown",
+        "amount": 16100.34,
+        "txn_count": 5
+      }
+    ],
+    "Corporate Overhead Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 657206.48,
+        "txn_count": 67
+      }
+    ],
+    "Benefits & Insurance": [
+      {
+        "vendor": "Unknown",
+        "amount": 149321.76,
+        "txn_count": 77
+      }
+    ],
+    "Clinic Rent": [
+      {
+        "vendor": "Unknown",
+        "amount": 107630.05,
+        "txn_count": 19
+      }
+    ],
+    "Clinic Utilities": [
+      {
+        "vendor": "Unknown",
+        "amount": 6767.83,
+        "txn_count": 36
+      }
+    ],
+    "Advertising Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 95485.13,
+        "txn_count": 203
+      },
+      {
+        "vendor": "ARIZONA AR",
+        "amount": 900.0,
+        "txn_count": 1
+      }
+    ],
+    "Marketing Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 4000.0,
+        "txn_count": 3
+      }
+    ],
+    "Recruiting Expenses": [
+      {
+        "vendor": "Unknown",
+        "amount": 24635.0,
+        "txn_count": 42
+      }
+    ],
+    "BCBA Performance Bonus": [
+      {
+        "vendor": "Unknown",
+        "amount": 20000.0,
+        "txn_count": 5
+      }
+    ],
+    "StateOps Bonus": [
+      {
+        "vendor": "Unknown",
+        "amount": 20000.0,
+        "txn_count": 5
+      }
+    ],
+    "BCBA Sign-On Bonus": [
+      {
+        "vendor": "Unknown",
+        "amount": 10000.0,
+        "txn_count": 5
+      }
+    ],
+    "RCD Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 119670.19,
+        "txn_count": 15
+      }
+    ],
+    "Clinic Director Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 75132.41,
+        "txn_count": 8
+      }
+    ],
+    "Ops Manager Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 93386.06,
+        "txn_count": 18
+      }
+    ],
+    "State Director Wages": [
+      {
+        "vendor": "Unknown",
+        "amount": 39187.14,
+        "txn_count": 4
+      }
+    ],
+    "Referrals Expense": [
+      {
+        "vendor": "Unknown",
+        "amount": 61723.4,
+        "txn_count": 8
+      }
+    ]
+  }
 }

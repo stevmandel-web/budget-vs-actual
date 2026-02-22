@@ -2,6 +2,7 @@
 Q&A Engine: builds financial context and queries Claude API.
 """
 import json
+from collections import defaultdict
 import streamlit as st
 
 try:
@@ -39,8 +40,11 @@ Data available to you:
 - Segment breakdown (Home vs Clinic)
 - State-level P&L for each state
 - Individual clinic P&L detail (e.g., NC-Charlotte, AZ-Phoenix, UT-Jordan)
-- GL Account-level transaction summaries (top accounts by dollar amount, mapped to P&L line items)
-- Historical trends across available months"""
+- GL Sub-Account breakdowns grouped by P&L category (e.g., what specific accounts make up G&A, COGS, etc.)
+- Cross-month GL account spend trends with MoM change flags (for identifying accounts with dramatic spend changes)
+- Historical trends across available months
+
+When asked about expense categories (like "What's in G&A?" or "What drives COGS?"), break down the answer by the specific GL sub-accounts showing dollar amounts. When asked about trends or changes, reference the cross-month GL account data to identify which specific accounts drove the change."""
 
 
 def get_api_key():
@@ -165,23 +169,76 @@ def build_context(month_abbr, analysis, month_data, budget, available_months, al
                 f"GM ${gm:,.0f} ({gm_pct:.1f}%), EBITDA ${ebitda:,.0f} ({margin:.1f}%)"
             )
 
-    # GL Account-level detail (transaction summaries grouped by account)
+    # GL Account detail grouped by P&L category
+    # This allows answering "What's in G&A?" with specific sub-account breakdowns
     gl_detail = month_data.get("gl_detail", [])
     if gl_detail:
         lines.append("")
-        lines.append("### GL Account Detail (Top accounts by dollar amount)")
-        lines.append("Account | P&L Line Item | Amount")
-        for entry in gl_detail[:30]:  # Top 30 accounts
-            acct = entry.get("account", "Unknown")
-            pnl = entry.get("pnl_item", "Unknown")
-            amt = entry.get("amount", 0)
-            lines.append(f"- {acct} | {pnl} | ${amt:,.0f}")
+        lines.append("### Expense/Revenue Breakdown by GL Sub-Account")
+        lines.append("(Shows what specific items make up each P&L line item)")
+        # Group GL entries by P&L item
+        gl_by_pnl = defaultdict(list)
+        for entry in gl_detail:
+            gl_by_pnl[entry.get("pnl_item", "Unknown")].append(entry)
+        # Display grouped, sorted by P&L item total
+        for pnl_item in sorted(gl_by_pnl.keys(), key=lambda k: -sum(abs(e["amount"]) for e in gl_by_pnl[k])):
+            entries = gl_by_pnl[pnl_item]
+            pnl_total = sum(e["amount"] for e in entries)
+            if abs(pnl_total) < 1000:
+                continue  # Skip trivial items
+            lines.append(f"\n**{pnl_item}** (Total: ${pnl_total:,.0f})")
+            for e in sorted(entries, key=lambda x: -abs(x["amount"])):
+                acct = e.get("account", "Unknown")
+                amt = e.get("amount", 0)
+                if abs(amt) < 500:
+                    continue  # Skip very small sub-accounts
+                lines.append(f"  - {acct}: ${amt:,.0f}")
+
+    # Cross-month GL account trends (for "what grew/changed" questions)
+    if all_months_data and len(all_months_data) > 1:
+        lines.append("")
+        lines.append("### GL Account Spend Trends Across Months")
+        lines.append("(Shows how specific accounts changed month-over-month)")
+        # Sort months chronologically (Oct, Nov, Dec, Jan, ...)
+        _MONTH_ORDER = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+                        "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+        # Fiscal sort: Oct=1, Nov=2, Dec=3, Jan=4, etc. (for Oct-start fiscal year)
+        _FISCAL_ORDER = {m: ((_MONTH_ORDER[m] - 10) % 12) for m in _MONTH_ORDER}
+        sorted_months = sorted(all_months_data.keys(), key=lambda m: _FISCAL_ORDER.get(m, 0))
+        # Build account → {pnl_item, month → amount} from all months
+        acct_trends = defaultdict(lambda: {"pnl_item": "", "months": {}})
+        for m, md in all_months_data.items():
+            for entry in md.get("gl_detail", []):
+                acct = entry.get("account", "Unknown")
+                acct_trends[acct]["pnl_item"] = entry.get("pnl_item", "")
+                acct_trends[acct]["months"][m] = entry.get("amount", 0)
+        # Show accounts with significant spend in any month (>$5K)
+        significant = {
+            k: v for k, v in acct_trends.items()
+            if any(abs(amt) > 5000 for amt in v["months"].values())
+        }
+        for acct in sorted(significant.keys(),
+                           key=lambda k: -max(abs(v) for v in significant[k]["months"].values())):
+            data = significant[acct]
+            pnl = data["pnl_item"]
+            parts = [f"{m}: ${data['months'].get(m, 0):,.0f}" for m in sorted_months]
+            lines.append(f"- {acct} ({pnl}): {' → '.join(parts)}")
+            # Flag large MoM changes
+            vals = [data["months"].get(m, 0) for m in sorted_months]
+            for i in range(1, len(vals)):
+                if vals[i-1] != 0 and abs(vals[i]) > 5000:
+                    pct_change = (vals[i] - vals[i-1]) / abs(vals[i-1]) * 100
+                    if abs(pct_change) > 30:
+                        lines.append(f"    ↑ {sorted_months[i-1]}→{sorted_months[i]}: {pct_change:+.0f}% change")
 
     # Historical trend (if available)
     if all_months_data and len(all_months_data) > 1:
         lines.append("")
         lines.append("### Historical Trend")
-        for m in sorted(all_months_data.keys()):
+        _MONTH_ORDER_H = {"Jan": 1, "Feb": 2, "Mar": 3, "Apr": 4, "May": 5, "Jun": 6,
+                          "Jul": 7, "Aug": 8, "Sep": 9, "Oct": 10, "Nov": 11, "Dec": 12}
+        _FISCAL_ORDER_H = {m: ((_MONTH_ORDER_H[m] - 10) % 12) for m in _MONTH_ORDER_H}
+        for m in sorted(all_months_data.keys(), key=lambda m: _FISCAL_ORDER_H.get(m, 0)):
             md = all_months_data[m]
             wc = md.get("wholeco", {})
             rev = wc.get("Total Revenue", 0)

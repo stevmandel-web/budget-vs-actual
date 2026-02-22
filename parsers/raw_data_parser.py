@@ -7,7 +7,7 @@ import openpyxl
 from collections import defaultdict
 from config import (
     RAW_DATA_SHEET, RAW_DATA_START_ROW,
-    RAW_COL_DATE, RAW_COL_TXN_TYPE, RAW_COL_ACCOUNT,
+    RAW_COL_DATE, RAW_COL_CUSTOMER, RAW_COL_TXN_TYPE, RAW_COL_ACCOUNT,
     RAW_COL_ITEM_CLASS, RAW_COL_AMOUNT, RAW_COL_FULL_NAME,
     RAW_COL_DIST_TYPE, DATA_LINE_ITEMS,
 )
@@ -196,6 +196,9 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
     # GL account to P&L item mapping (for labeling)
     gl_to_pnl = {}
 
+    # Vendor-level accumulators: month → pnl_item → vendor → {amount, count}
+    vendor_detail = defaultdict(lambda: defaultdict(lambda: defaultdict(lambda: {"amount": 0.0, "count": 0})))
+
     unmapped = []
     stats = {"total": 0, "skipped": 0, "mapped": 0, "unmapped": 0, "non_pnl": 0}
 
@@ -284,6 +287,13 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
         if gl_leaf not in gl_to_pnl:
             gl_to_pnl[gl_leaf] = pnl_item
 
+        # Track vendor/customer-level detail
+        customer_val = row[RAW_COL_CUSTOMER - 1].value
+        vendor_name = str(customer_val).strip() if customer_val else "Unknown"
+        if vendor_name:
+            vendor_detail[month_abbr][pnl_item][vendor_name]["amount"] += amount_f
+            vendor_detail[month_abbr][pnl_item][vendor_name]["count"] += 1
+
     wb.close()
 
     print(f"  Processed {stats['total']} rows: "
@@ -321,6 +331,30 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
         gl_list.sort(key=lambda x: abs(x["amount"]), reverse=True)
         gl_summaries[m] = gl_list[:50]
 
+    # Build vendor summaries per month, grouped by P&L line item
+    # vendor_by_pnl: { month: { pnl_item: [ {vendor, amount, txn_count}, ... ] } }
+    # vendor_summary: { month: [ {vendor, pnl_item, amount, txn_count}, ... ] } (flat, top 100)
+    vendor_by_pnl = {}
+    vendor_summary = {}
+    for m, pnl_items in vendor_detail.items():
+        by_pnl = {}
+        flat_list = []
+        for pnl_item, vendors in pnl_items.items():
+            vlist = []
+            for vname, vdata in vendors.items():
+                entry = {
+                    "vendor": vname,
+                    "amount": round(vdata["amount"], 2),
+                    "txn_count": vdata["count"],
+                }
+                vlist.append(entry)
+                flat_list.append({**entry, "pnl_item": pnl_item})
+            vlist.sort(key=lambda x: abs(x["amount"]), reverse=True)
+            by_pnl[pnl_item] = vlist[:20]  # Top 20 vendors per P&L item
+        vendor_by_pnl[m] = by_pnl
+        flat_list.sort(key=lambda x: abs(x["amount"]), reverse=True)
+        vendor_summary[m] = flat_list[:100]  # Top 100 overall
+
     # ── All-months mode: return every month in one shot ──
     if target_month is None:
         all_months_result = {}
@@ -340,6 +374,8 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
                     if items.get("Total Revenue", 0) != 0 or items.get("BT Revenue", 0) != 0
                 },
                 "gl_detail": gl_summaries.get(m, []),
+                "vendor_summary": vendor_summary.get(m, []),
+                "vendor_by_pnl": vendor_by_pnl.get(m, {}),
             }
         return all_months_result, unmapped
 
@@ -360,6 +396,8 @@ def parse_raw_data(raw_data_path, mapping_path, target_month="Jan"):
             if items.get("Total Revenue", 0) != 0 or items.get("BT Revenue", 0) != 0
         },
         "gl_detail": gl_summaries.get(target_month, []),
+        "vendor_summary": vendor_summary.get(target_month, []),
+        "vendor_by_pnl": vendor_by_pnl.get(target_month, {}),
         "historical": {
             m: dict(items) for m, items in wholeco.items()
         },
