@@ -44,7 +44,9 @@ Data available to you:
 - Cross-month GL account spend trends with MoM change flags (for identifying accounts with dramatic spend changes)
 - Historical trends across available months
 
-When asked about expense categories (like "What's in G&A?" or "What drives COGS?"), break down the answer by the specific GL sub-accounts showing dollar amounts. When asked about trends or changes, reference the cross-month GL account data to identify which specific accounts drove the change."""
+When asked about expense categories (like "What's in G&A?" or "What drives COGS?"), break down the answer by the specific GL sub-accounts showing dollar amounts. When asked about trends or changes, reference the cross-month GL account data to identify which specific accounts drove the change.
+
+IMPORTANT: You DO have GL sub-account detail for ALL P&L line items. If a line item has only one GL account (e.g., "Consulting & Contract" may map to a single "94.04 Consulting" account), state the amount and note it flows through a single GL account. Never say you don't have detail — instead, show what you have, including the dollar amount, which states/segments it appears in, and how it trended across months."""
 
 
 def get_api_key():

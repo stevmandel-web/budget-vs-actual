@@ -1,6 +1,7 @@
 """
 Treetop Therapy — Budget vs Actual Dashboard
 Run: streamlit run dashboard/app.py
+Version: 2.1.0
 """
 import json
 import sys
