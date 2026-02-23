@@ -460,7 +460,7 @@ def page_executive_summary(month, analysis):
         bud_rev = bud_wc.get("Total Revenue", {}).get(month, 0) if show_budget else None
         bud_wd = working_days.get(month, wd)  # budget uses same working days
 
-        render_html(
+        render_inline(
             html_rev_per_day_banner(
                 revenue, wd,
                 budget_rev=bud_rev,
@@ -617,7 +617,7 @@ def _view_segment_pnl(month, analysis):
         prior_wd = working_days.get(prior_m, 0) if prior_m else 0
 
         bud_rev = budget.get(seg_key, {}).get("Total Revenue", {}).get(month, 0) if show_budget else None
-        render_html(
+        render_inline(
             html_rev_per_day_banner(
                 seg_rev, wd,
                 budget_rev=bud_rev,
@@ -666,7 +666,7 @@ def _view_month_over_month(month, analysis):
         prior_rev = all_data.get(prior_m, {}).get(segment_key, {}).get("Total Revenue", 0) if prior_m else None
         prior_wd = working_days.get(prior_m, 0) if prior_m else 0
         bud_rev = budget_segment.get("Total Revenue", {}).get(month, 0) if budget_segment else None
-        render_html(
+        render_inline(
             html_rev_per_day_banner(
                 seg_rev, wd,
                 budget_rev=bud_rev,
@@ -742,9 +742,9 @@ def _view_state_drilldown(month, analysis):
             prior_wd = working_days.get(prior_month, 0) if prior_month else 0
             bud = st.session_state.budget or {}
             bud_rev = bud.get("wholeco", {}).get("Total Revenue", {}).get(month, 0) if show_budget else None
-            render_html(html_rev_per_day_banner(wc_rev, wd, budget_rev=bud_rev, budget_working_days=wd,
-                                                prior_rev=prior_wc_rev, prior_working_days=prior_wd,
-                                                prior_label=prior_month or "Prior"))
+            render_inline(html_rev_per_day_banner(wc_rev, wd, budget_rev=bud_rev, budget_working_days=wd,
+                                                  prior_rev=prior_wc_rev, prior_working_days=prior_wd,
+                                                  prior_label=prior_month or "Prior"))
 
         render_inline(html_section_header("All States — Side by Side"))
         render_html(
@@ -770,9 +770,9 @@ def _view_state_drilldown(month, analysis):
             prior_wd = working_days.get(prior_month, 0) if prior_month else 0
             st_bud = budget_states.get(selected_state, {})
             st_bud_rev = st_bud.get("Total Revenue", {}).get(month, 0) if show_budget and st_bud else None
-            render_html(html_rev_per_day_banner(st_rev, wd, budget_rev=st_bud_rev, budget_working_days=wd,
-                                                prior_rev=prior_st_rev, prior_working_days=prior_wd,
-                                                prior_label=prior_month or "Prior"))
+            render_inline(html_rev_per_day_banner(st_rev, wd, budget_rev=st_bud_rev, budget_working_days=wd,
+                                                  prior_rev=prior_st_rev, prior_working_days=prior_wd,
+                                                  prior_label=prior_month or "Prior"))
 
         # Budget for this state
         state_budget = budget_states.get(selected_state) if show_budget else None
@@ -819,9 +819,9 @@ def _view_state_drilldown(month, analysis):
         if wd and cl_rev:
             prior_cl_rev = prior_clinic_data.get("Total Revenue", 0) if prior_clinic_data else None
             prior_wd = working_days.get(prior_month, 0) if prior_month else 0
-            render_html(html_rev_per_day_banner(cl_rev, wd, prior_rev=prior_cl_rev,
-                                                prior_working_days=prior_wd,
-                                                prior_label=prior_month or "Prior"))
+            render_inline(html_rev_per_day_banner(cl_rev, wd, prior_rev=prior_cl_rev,
+                                                  prior_working_days=prior_wd,
+                                                  prior_label=prior_month or "Prior"))
 
         # GM% benchmark badge
         if show_budget:
@@ -926,10 +926,10 @@ def _view_clinic_comparison(month, analysis):
         prior_cl_rev = prior_data.get("clinic", {}).get("Total Revenue", 0) if prior_data else None
         prior_wd = working_days.get(prior_m, 0) if prior_m else 0
         bud_cl_rev = (st.session_state.budget or {}).get("clinic", {}).get("Total Revenue", {}).get(month, 0) if show_budget else None
-        render_html(html_rev_per_day_banner(clinic_seg_rev, wd, budget_rev=bud_cl_rev,
-                                            budget_working_days=wd, prior_rev=prior_cl_rev,
-                                            prior_working_days=prior_wd,
-                                            prior_label=prior_m or "Prior"))
+        render_inline(html_rev_per_day_banner(clinic_seg_rev, wd, budget_rev=bud_cl_rev,
+                                              budget_working_days=wd, prior_rev=prior_cl_rev,
+                                              prior_working_days=prior_wd,
+                                              prior_label=prior_m or "Prior"))
 
     render_inline(html_section_header(f"Clinic Comparison — {month}"))
 

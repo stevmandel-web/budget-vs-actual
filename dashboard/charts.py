@@ -338,62 +338,59 @@ def fmt_compact(val):
 def html_rev_per_day_banner(revenue, working_days, budget_rev=None,
                             budget_working_days=None, prior_rev=None,
                             prior_working_days=None, prior_label="Prior"):
-    """Render a styled Revenue per Working Day banner.
+    """Render a styled Revenue per Working Day banner with inline styles.
 
-    Args:
-        revenue: actual total revenue for current period
-        working_days: working days in current period
-        budget_rev: budget revenue (optional)
-        budget_working_days: budget working days (optional, defaults to same as actual)
-        prior_rev: prior month revenue (optional)
-        prior_working_days: prior month working days (optional)
-        prior_label: label for prior period (e.g. "Dec")
+    Uses inline styles so it works with st.markdown (no iframe needed).
     """
     if not working_days or not revenue:
         return ""
 
     rpd = revenue / working_days
 
-    parts = []
-    # Main value
-    parts.append(f"""
-        <div class="rev-per-day-main">
-            <span class="rev-per-day-label">Rev / Working Day</span>
-            <span class="rev-per-day-value">${rpd:,.0f}</span>
-            <span class="rev-per-day-detail">({working_days} days)</span>
-        </div>
-    """)
+    # Inline style constants
+    box = (f'background:linear-gradient(135deg,{SLDS["bg_header"]},#e8edf5);'
+           f'border:1px solid {SLDS["border"]};border-radius:6px;'
+           f'padding:0.75rem 1.25rem;margin:0.5rem 0 0.75rem 0;'
+           f'display:flex;align-items:center;gap:1.5rem;flex-wrap:wrap;')
+    lbl = (f'font-size:0.6875rem;font-weight:600;color:{SLDS["text_secondary"]};'
+           f'text-transform:uppercase;letter-spacing:0.05em;')
+    val = f'font-size:1.375rem;font-weight:700;color:{SLDS["brand_dark"]};'
+    det = f'font-size:0.75rem;color:{SLDS["text_secondary"]};'
+    sep = f'width:1px;height:28px;background:{SLDS["border"]};'
+    fav = f'color:{SLDS["success_dark"]};font-weight:600;'
+    unfav = f'color:{SLDS["error_dark"]};font-weight:600;'
 
-    # Budget comparison
+    parts = []
+    parts.append(
+        f'<span style="{lbl}">Rev / Working Day</span> '
+        f'<span style="{val}">${rpd:,.0f}</span> '
+        f'<span style="{det}">({working_days} days)</span>'
+    )
+
     if budget_rev is not None and budget_rev > 0:
         bwd = budget_working_days or working_days
         bud_rpd = budget_rev / bwd
         delta = rpd - bud_rpd
         delta_pct = delta / bud_rpd * 100 if bud_rpd else 0
-        cls = "favorable" if delta >= 0 else "unfavorable"
-        parts.append(f'<div class="rev-per-day-sep"></div>')
-        parts.append(f"""
-            <div class="rev-per-day-detail">
-                Budget: ${bud_rpd:,.0f}/day
-                <span class="{cls}">{delta:+,.0f} ({delta_pct:+.1f}%)</span>
-            </div>
-        """)
+        dcls = fav if delta >= 0 else unfav
+        parts.append(f'<span style="{sep}"></span>')
+        parts.append(
+            f'<span style="{det}">Budget: ${bud_rpd:,.0f}/day '
+            f'<span style="{dcls}">{delta:+,.0f} ({delta_pct:+.1f}%)</span></span>'
+        )
 
-    # Prior month comparison
     if prior_rev is not None and prior_working_days and prior_rev > 0:
         prior_rpd = prior_rev / prior_working_days
         delta = rpd - prior_rpd
         delta_pct = delta / prior_rpd * 100 if prior_rpd else 0
-        cls = "favorable" if delta >= 0 else "unfavorable"
-        parts.append(f'<div class="rev-per-day-sep"></div>')
-        parts.append(f"""
-            <div class="rev-per-day-detail">
-                {prior_label}: ${prior_rpd:,.0f}/day
-                <span class="{cls}">{delta:+,.0f} ({delta_pct:+.1f}%)</span>
-            </div>
-        """)
+        dcls = fav if delta >= 0 else unfav
+        parts.append(f'<span style="{sep}"></span>')
+        parts.append(
+            f'<span style="{det}">{prior_label}: ${prior_rpd:,.0f}/day '
+            f'<span style="{dcls}">{delta:+,.0f} ({delta_pct:+.1f}%)</span></span>'
+        )
 
-    return f'<div class="rev-per-day">{"".join(parts)}</div>'
+    return f'<div style="{box}">{"".join(parts)}</div>'
 
 
 def html_rev_per_day_table_row(revenue, working_days, ncols, budget_rev=None,
