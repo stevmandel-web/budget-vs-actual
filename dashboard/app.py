@@ -25,18 +25,24 @@ from dashboard.qa_engine import (
     is_available as qa_available, build_context as qa_build_context,
     ask as qa_ask, generate_summary_for_gamma,
 )
-from dashboard.charts import (
-    SLDS, GLOBAL_CSS, CHART_COLORS,
-    fmt_dollar, fmt_pct, fmt_compact,
-    html_kpi_card, html_badge, html_section_header, html_insight,
-    html_variance_table, html_simple_table,
-    html_mom_table, html_clinic_comparison_table,
-    html_state_comparison_table, html_entity_mom_table,
-    html_margin_heatmap_table, make_service_line_margin_chart,
-    make_waterfall_chart, make_dual_trend_chart, make_trend_chart,
-    make_variance_bars, make_state_revenue_chart, make_clinic_revenue_chart,
-    html_rev_per_day_banner,
-)
+try:
+    from dashboard.charts import (
+        SLDS, GLOBAL_CSS, CHART_COLORS,
+        fmt_dollar, fmt_pct, fmt_compact,
+        html_kpi_card, html_badge, html_section_header, html_insight,
+        html_variance_table, html_simple_table,
+        html_mom_table, html_clinic_comparison_table,
+        html_state_comparison_table, html_entity_mom_table,
+        html_margin_heatmap_table, make_service_line_margin_chart,
+        make_waterfall_chart, make_dual_trend_chart, make_trend_chart,
+        make_variance_bars, make_state_revenue_chart, make_clinic_revenue_chart,
+        html_rev_per_day_banner,
+    )
+except ImportError as e:
+    st.error(f"Charts import failed: {e}")
+    import traceback
+    st.code(traceback.format_exc())
+    st.stop()
 
 # ── Page config ──────────────────────────────────────────────────────
 st.set_page_config(
